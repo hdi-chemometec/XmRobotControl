@@ -1,5 +1,5 @@
-import express from 'express';
-import axios from 'axios';
+import express from 'express'; // is used for creating the HTTP server. It runs somewhere and responds to requests
+import axios from 'axios'; // Is a HTTP client. It is used for creating web requests
 
 const app = express();
 
