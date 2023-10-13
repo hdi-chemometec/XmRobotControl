@@ -1,7 +1,12 @@
 import express from 'express'; // is used for creating the HTTP server. It runs somewhere and responds to requests
 import axios from 'axios'; // Is a HTTP client. It is used for creating web requests
+import WebSocket from 'ws';
+import http from 'http';
 
+const PORT = 3000;
 const app = express();
+const server = http.createServer(app);
+const ws = new WebSocket.Server({ server }); 
 
 const pythonServer = 'http://127.0.0.1:5000'
 
@@ -33,6 +38,15 @@ app.get('/lightsOn', (req, res) => {
     });
 });
 
-app.listen(3000, () => {
-    console.log('App listening on port 3000!');
+ws.on('connection', async (ws) => {
+    console.log('Client connected');
+
+    ws.on('message', (message) => {
+        console.log('Message received: ', message);
+    });
+    ws.send('Hello from server');
+});
+
+server.listen(3000, () => {
+    console.log(`Server started on ${PORT} :`);
 });
