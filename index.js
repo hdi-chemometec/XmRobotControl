@@ -1,25 +1,16 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express")); // is used for creating the HTTP server. It runs somewhere and responds to requests
 const axios_1 = __importDefault(require("axios")); // Is a HTTP client. It is used for creating web requests
-const ws_1 = __importDefault(require("ws"));
 const http_1 = __importDefault(require("http"));
-const PORT = 3000;
+const WebSocketClient = require('websocket').client;
+const PORT = 80;
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
-const ws = new ws_1.default.Server({ server });
+const client = new WebSocketClient();
 const pythonServer = 'http://127.0.0.1:5000';
 app.get('/', (req, res) => {
     res.send('Hello World!');
@@ -42,17 +33,35 @@ app.get('/lightsOn', (req, res) => {
         res.json({ data: responseJson });
     })
         .catch((error) => {
-        console.error("Error occured", error);
+        console.error("Error occurred", error);
         res.status(500).json({ error: 'Internal Server Error' });
     });
 });
-ws.on('connection', (ws) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('Client connected');
-    ws.on('message', (message) => {
-        console.log('Message received: ', message);
-    });
-    ws.send('Hello from server');
-}));
-server.listen(3000, () => {
-    console.log(`Server started on ${PORT} :`);
+client.on('connectFailed', function (error) {
+    console.log('Connect Error: ' + error.toString());
 });
+client.on('connect', function (connection) {
+    console.log('WebSocket Client Connected');
+    sendState();
+    connection.on('error', function (error) {
+        console.log("Connection Error: " + error.toString());
+    });
+    connection.on('close', function () {
+        console.log('echo-protocol Connection Closed');
+    });
+    connection.on('message', function (message) {
+        if (message.type === 'utf8') {
+            console.log("Received: '" + message.utf8Data + "'");
+        }
+    });
+    function sendState() {
+        if (connection.connected) {
+            const json = JSON.stringify({ type: 'STATE' });
+            connection.sendUTF(json);
+        }
+    }
+});
+server.listen(PORT, () => {
+    console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
+});
+client.connect(`ws://0.0.0.0:${PORT}/ws`);
