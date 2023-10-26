@@ -1,35 +1,80 @@
-import express from "express"; // is used for creating the HTTP server. It runs somewhere and responds to requests
-import axios from "axios"; // Is a HTTP client. It is used for creating web requests
-import http from "http";
+import express, { Express, Request, Response } from "express"; // is a web app framework used for building APIs.
+import axios from "axios"; // library used for making HTTP requests to servers. E.g. the flask server
+
 import { client } from 'websocket';
+import DiscoveryClient, { SERVICE_EVENT, SERVICE_REMOVED_EVENT } from '@opentrons/discovery-client';
+import Service from "./Types/Service";
 
+const robot = new DiscoveryClient();
+let robotIP = "";
 
-const PORT = 80;
-const app = express();
-const server = http.createServer(app);
+robot.start();
+
+robot.on(SERVICE_EVENT, (service: Array<Service>) => {
+    console.log("Service found: ", service);
+    service.forEach((service) => {
+        console.log("Ip address found: ", service.ip);
+        if(service.ip != null) {
+          robotIP = service.ip;
+        }
+    });
+});
+
+robot.on(SERVICE_REMOVED_EVENT, (service: Array<Service>) => {
+  console.log("Service removed: ", service);
+    service.forEach((service) => {
+        console.log("Ip address removed: ", service.ip);
+        robotIP = "";
+    });
+});
+
+const PORT = process.env.PORT ?? 80;
+const app: Express = express();
 
 const clientInstance = new client();
 
 const pythonServer = "http://127.0.0.1:5000";
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello from Node server!");
 });
 
-app.get("/lightsOff", (req, res) => {
+app.get("/connect", (req: Request, res: Response) => {
+  if(robotIP != "") {
+    res.json({ data: robotIP });
+    res.status(200).send();
+  } else {
+    res.status(404).send('No robot IP address found. Make sure the robot is turned on!');
+  }
+});
+
+app.get('/lights', (req: Request, res: Response) => {
+  axios.get(pythonServer + "/lights")
+  .then((response) => {
+    const responseJson = response.data;
+    res.json({ data: responseJson });
+  })
+  .catch((error) => {
+    console.error("Error occurred", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  });
+});
+
+app.get("/lightsOff", (req: Request, res: Response) => {
   axios
     .get(pythonServer + "/lights/false")
     .then((response) => {
       const responseJson = response.data;
       res.json({ data: responseJson });
     })
-    .catch((error: any) => {
+    .catch((error) => {
       console.error("Error occurred", error);
       res.status(500).json({ error: "Internal Server Error" });
     });
 });
 
-app.get("/lightsOn", (req, res) => {
+app.get("/lightsOn", (req: Request, res: Response) => {
   axios
     .get(pythonServer + "/lights/true")
     .then((response) => {
@@ -42,6 +87,37 @@ app.get("/lightsOn", (req, res) => {
     });
 });
 
+app.get("/add/:protocolId", (req: Request, res: Response) => {
+  const protocolId = String(req.params.protocolId);
+  console.log(protocolId);
+  axios
+    .get(pythonServer + "/run/" + protocolId)
+    .then((response) => {
+      const responseJson = response.data;
+      res.json({ data: responseJson });
+    })
+    .catch((error) => {
+      console.error("Error occurred", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    });
+});
+
+app.get("/run/:protocolId", (req: Request, res: Response) => {
+  const protocolId = String(req.params.protocolId);
+  console.log(protocolId);
+  axios
+    .get(pythonServer + "/run/" + protocolId + "/actions")
+    .then((response) => {
+      const responseJson = response.data;
+      res.json({ data: responseJson });
+    })
+    .catch((error) => {
+      console.error("Error occurred", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    });
+});
+
+//      Websocket functions     //
 clientInstance.on("connectFailed", function (error) {
   console.log("Connect Error: " + error.toString());
 });
@@ -61,7 +137,7 @@ clientInstance.on("connect", function (connection) {
   connection.on("message", function (message) {
     if (message.type === "utf8") {
         console.log("Received: '" + message.utf8Data + "'");
-        };
+        }
     });
   
   function sendState() {
@@ -72,7 +148,7 @@ clientInstance.on("connect", function (connection) {
   }
 });
 
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
 });
 
