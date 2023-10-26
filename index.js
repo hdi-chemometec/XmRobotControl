@@ -101,11 +101,25 @@ app.get("/lightsOn", (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     });
 });
-app.get("/run/:protocolId", (req, res) => {
+app.get("/add/:protocolId", (req, res) => {
     const protocolId = String(req.params.protocolId);
     console.log(protocolId);
     axios_1.default
         .get(pythonServer + "/run/" + protocolId)
+        .then((response) => {
+        const responseJson = response.data;
+        res.json({ data: responseJson });
+    })
+        .catch((error) => {
+        console.error("Error occurred", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    });
+});
+app.get("/run/:protocolId", (req, res) => {
+    const protocolId = String(req.params.protocolId);
+    console.log(protocolId);
+    axios_1.default
+        .get(pythonServer + "/run/" + protocolId + "/actions")
         .then((response) => {
         const responseJson = response.data;
         res.json({ data: responseJson });
