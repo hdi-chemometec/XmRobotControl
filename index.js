@@ -68,6 +68,8 @@ app.post("/execute", execute);
 app.post("/add/:protocolId", add); // test protocol 4cc224a7-f47c-40db-8eef-9f791c689fab
 app.get("/runStatus", runStatus);
 app.get('/lights', lights);
+app.get("/lightsOff", lightsOff);
+app.get("/lightsOn", lightsOn);
 function connect(req, res) {
     if (robotIP != "") {
         res.json({ data: robotIP });
@@ -162,7 +164,7 @@ function lights(req, res) {
         res.status(500).json({ error: "Internal Server Error" });
     });
 }
-app.get("/lightsOff", (req, res) => {
+function lightsOff(req, res) {
     axios_1.default
         .get(pythonServer + "/lights/false")
         .then((response) => {
@@ -173,8 +175,8 @@ app.get("/lightsOff", (req, res) => {
         console.error("Error occurred", error);
         res.status(500).json({ error: "Internal Server Error" });
     });
-});
-app.get("/lightsOn", (req, res) => {
+}
+function lightsOn(req, res) {
     axios_1.default
         .get(pythonServer + "/lights/true")
         .then((response) => {
@@ -185,7 +187,7 @@ app.get("/lightsOn", (req, res) => {
         console.error("Error occurred", error);
         res.status(500).json({ error: "Internal Server Error" });
     });
-});
+}
 //      Websocket functions     //
 clientInstance.on("connectFailed", function (error) {
     console.log("Connect Error: " + error.toString());
