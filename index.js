@@ -65,11 +65,25 @@ app.get("/server", server);
 app.get("/protocols", protocols);
 app.get("/runs", runs);
 app.post("/execute", execute);
-app.post("/add/:protocolId", add); // test protocol 4cc224a7-f47c-40db-8eef-9f791c689fab
 app.get("/runStatus", runStatus);
 app.get('/lights', lights);
 app.get("/lightsOff", lightsOff);
 app.get("/lightsOn", lightsOn);
+// test protocol 4cc224a7-f47c-40db-8eef-9f791c689fab
+app.post("/add/:protocolId", (req, res) => {
+    const protocolId = String(req.params.protocolId);
+    console.log(protocolId);
+    axios_1.default
+        .post(pythonServer + "/runs/" + protocolId)
+        .then((response) => {
+        const responseJson = response.data;
+        res.json({ data: responseJson });
+    })
+        .catch((error) => {
+        console.error("Error occurred", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    });
+});
 function connect(req, res) {
     if (robotIP != "") {
         res.json({ data: robotIP });
@@ -118,20 +132,6 @@ function runs(req, res) {
 function execute(req, res) {
     axios_1.default
         .post(pythonServer + "/execute/")
-        .then((response) => {
-        const responseJson = response.data;
-        res.json({ data: responseJson });
-    })
-        .catch((error) => {
-        console.error("Error occurred", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    });
-}
-function add(req, res) {
-    const protocolId = String(req.params.protocolId);
-    console.log(protocolId);
-    axios_1.default
-        .post(pythonServer + "/runs/" + protocolId)
         .then((response) => {
         const responseJson = response.data;
         res.json({ data: responseJson });
