@@ -1,6 +1,5 @@
 import express, { Express, Request, Response } from "express"; // is a web app framework used for building APIs.
 import axios from "axios"; // library used for making HTTP requests to servers. E.g. the flask server
-import bodyParser from 'body-parser';
 
 import { client } from 'websocket';
 import DiscoveryClient, { SERVICE_EVENT, SERVICE_REMOVED_EVENT } from '@opentrons/discovery-client';
@@ -13,7 +12,6 @@ let robotIP = "";
 robot.start();
 
 robot.on(SERVICE_EVENT, (service: Array<Service>) => {
-    //console.log("Service found: ", service);
     service.forEach((service) => {
         console.log("Ip address found: ", service.ip);
         if(service.ip != null) {
@@ -23,7 +21,6 @@ robot.on(SERVICE_EVENT, (service: Array<Service>) => {
 });
 
 robot.on(SERVICE_REMOVED_EVENT, (service: Array<Service>) => {
-  //console.log("Service removed: ", service);
     service.forEach((service) => {
         console.log("Ip address removed: ", service.ip);
         robotIP = "";
@@ -36,151 +33,186 @@ const app: Express = express();
 const clientInstance = new client();
 const pythonServer = "http://127.0.0.1:5000";
 
-
-app.use(bodyParser.json());
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello from Node server!");
-});
-
-app.get("/connect", connect);
-app.get("/server",server);
-app.get("/protocols", protocols);
-app.get("/runs", runs);
-app.post("/execute", execute);
-app.get("/runStatus", runStatus);
-app.get('/lights', lights);
-app.get("/lightsOff", lightsOff);
-app.get("/lightsOn", lightsOn);
-
-// test protocol 4cc224a7-f47c-40db-8eef-9f791c689fab
-app.post("/add/:protocolId", (req: Request, res: Response) => {
-  const protocolId = String(req.params.protocolId);
-  console.log(protocolId);
-  axios
-    .post(pythonServer + "/runs/" + protocolId)
-    .then((response) => {
-      const responseJson = response.data;
-      res.json({ data: responseJson });
-    })
-    .catch((error) => {
-      console.error("Error occurred", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    });
-}); 
-
-function connect(req: Request, res: Response) {
-  if(robotIP != "") {
-    res.json({ data: robotIP });
-    res.status(200).send();
-  } else {
-    res.status(404).send('No robot IP address found. Make sure the robot is turned on!');
-  }
+const headers = {
+  'Content-Type': 'application/json'
 }
 
-function server(req: Request, res: Response) {
+app.get("/", (req: Request, res: Response) => {
+  console.log("The current Ip Address is: ", robotIP);
+  return res.send("Hello from Node server!");
+});
+
+app.get("/connect", get_connection);
+app.get("/server", get_server);
+app.get("/protocols", get_protocols);
+app.get("/runs", get_runs);
+app.post("/runs", post_run);
+app.post("/execute", post_execute);
+app.get("/runStatus", get_runStatus);
+app.get('/lights', get_lights);
+app.post('/lights', post_lights);
+
+function get_connection(req: Request, res: Response) {
+  console.log("Called get_connection");
+  const ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+  const ipv6Pattern = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
+
+  if (ipv4Pattern.test(robotIP)) {
+    // Check if it's a valid IPv4 address
+    const parts = robotIP.split('.');
+    for (const part of parts) {
+      const num = parseInt(part, 10);
+      if (num < 0 || num > 255) {
+        return res.status(404).send('No robot IP address found. Make sure the robot is turned on!');
+      }
+    }
+    return res.status(200).json({data: robotIP});
+  } else if (ipv6Pattern.test(robotIP)) {
+    // Check if it's a valid IPv6 address
+    return res.status(200).json({data: robotIP});
+  }
+  return res.status(404).send('No robot IP address found. Make sure the robot is turned on!');
+}
+
+function get_server(req: Request, res: Response) {
+  console.log("Called get_server");
   axios
     .get(pythonServer + "/")
     .then((response) => {
       const responseJson = response.data;
-      res.json({ data: responseJson });
+      return res.json({ data: responseJson });
     })
     .catch((error) => {
       console.error("Error occurred", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     });
 }
 
-function protocols(req: Request, res: Response) {
+function get_data(req: Request) {
+  console.log("Called get_data");
+  return new Promise((resolve, reject) => {
+    try {
+      let data = '';
+      req.on('data', (chunk) => {
+        data += chunk.toString();
+      })
+      req.on('end', () => {
+        req.body = JSON.parse(data);
+        resolve(data);
+      })
+    } catch (error) {
+      reject(error);
+    }
+  })
+}
+
+function get_protocols(req: Request, res: Response) {
+  console.log("Called get_protocols");
   axios
     .get(pythonServer + "/protocols")
     .then((response) => {
       const responseJson = response.data;
-      res.json({ data: responseJson });
+      return res.json({ data: responseJson });
     })
     .catch((error) => {
       console.error("Error occurred", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     });
 }
 
-function runs(req: Request, res: Response) {
+function get_runs(req: Request, res: Response) {
+  console.log("Called get_runs");
   axios
   .get(pythonServer + "/runs")
   .then((response) => {
     const responseJson = response.data;
-    res.json({ data: responseJson });
+    return res.json({ data: responseJson });
   })
   .catch((error) => {
     console.error("Error occurred", error);
-      res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   });
 }
 
-function execute(req: Request, res: Response) {
-  axios
-    .post(pythonServer + "/execute/")
-    .then((response) => {
+async function post_run(req: Request, res: Response) {
+  console.log("Called post_run");
+  const body = await get_data(req);
+  console.log(body);
+  await axios({
+    method: 'post',
+    url: pythonServer + "/runs",
+    data: body,
+    headers: headers
+  }).then( response => {
       const responseJson = response.data;
-      res.json({ data: responseJson });
+      return res.json({ data: responseJson });
     })
     .catch((error) => {
       console.error("Error occurred", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     });
-}
+  }
 
-
-function runStatus(req: Request, res: Response) {
+function post_execute(req: Request, res: Response) {
+  console.log("Called post_execute");
   axios
-    .get(pythonServer + "/runStatus/")
+    .post(pythonServer + "/execute")
     .then((response) => {
       const responseJson = response.data;
-      res.json({ data: responseJson });
+      return res.json({ data: responseJson });
     })
     .catch((error) => {
       console.error("Error occurred", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     });
 }
 
-function lights(req: Request, res: Response) {
+function get_runStatus(req: Request, res: Response) {
+  console.log("Called get_runStatus");
+  axios
+    .get(pythonServer + "/runStatus")
+    .then((response) => {
+      const responseJson = response.data;
+      return res.json({ data: responseJson });
+    })
+    .catch((error) => {
+      console.error("Error occurred", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    });
+}
+
+function get_lights(req: Request, res: Response) {
+  console.log("Called get_lights");
   axios.get(pythonServer + "/lights")
   .then((response) => {
     const responseJson = response.data;
-    res.json({ data: responseJson });
+    return res.json({ data: responseJson });
   })
   .catch((error) => {
     console.error("Error occurred", error);
-      res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   });
 }
 
-function lightsOff(req: Request, res: Response) {
-  axios
-    .get(pythonServer + "/lights/false")
-    .then((response) => {
+async function post_lights(req: Request, res: Response) {
+  console.log("Called post_lights");
+  console.log("post lights");
+  const body = await get_data(req);
+  console.log(body);
+  axios({
+    method: 'post',
+    url: pythonServer + "/lights",
+    data: body,
+    headers: headers
+  }).then( response => {
       const responseJson = response.data;
-      res.json({ data: responseJson });
+      return res.json({ data: responseJson });
     })
     .catch((error) => {
       console.error("Error occurred", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    });
-}
-
-function lightsOn(req: Request, res: Response) {
-  axios
-    .get(pythonServer + "/lights/true")
-    .then((response) => {
-      const responseJson = response.data;
-      res.json({ data: responseJson });
+      return res.status(500).json({ error: "Internal Server Error" });
     })
-    .catch((error) => {
-      console.error("Error occurred", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    });
-}
+  }
 
 //      Websocket functions     //
 clientInstance.on("connectFailed", function (error) {
