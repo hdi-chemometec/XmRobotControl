@@ -38,203 +38,81 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express")); // is a web app framework used for building APIs.
 const axios_1 = __importDefault(require("axios")); // library used for making HTTP requests to servers. E.g. the flask server
+const ws_1 = __importDefault(require("ws"));
 const websocket_1 = require("websocket");
 const discovery_client_1 = __importStar(require("@opentrons/discovery-client"));
 const robot = new discovery_client_1.default();
 let robotIP = "";
+const WSPORT = 8084;
+const headers = {
+    'Content-Type': 'application/json'
+};
+function get_ip() {
+    return robotIP;
+}
+function set_ip(ip) {
+    robotIP = ip;
+}
 // functions used for getting the robot IP address:
 robot.start();
 robot.on(discovery_client_1.SERVICE_EVENT, (service) => {
     service.forEach((service) => {
-        console.log("Ip address found: ", service.ip);
-        if (service.ip != null) {
-            robotIP = service.ip;
+        if (service.serverOk) {
+            console.log("Ip address found: ", service.ip);
+            if (service.ip != null) {
+                set_ip(service.ip);
+                console.log("Updated IP address: ", get_ip());
+                updateRobotIP("true");
+            }
+        }
+        else {
+            console.log("No robot is connected");
+            set_ip("");
+            updateRobotIP("false");
         }
     });
 });
 robot.on(discovery_client_1.SERVICE_REMOVED_EVENT, (service) => {
     service.forEach((service) => {
         console.log("Ip address removed: ", service.ip);
-        robotIP = "";
+        set_ip("");
+        updateRobotIP("false");
     });
 });
-const PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 80;
+const PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 4000;
 const app = (0, express_1.default)();
 const clientInstance = new websocket_1.client();
 const pythonServer = "http://127.0.0.1:5000";
-const headers = {
-    'Content-Type': 'application/json'
-};
 app.get("/", (req, res) => {
-    console.log("The current Ip Address is: ", robotIP);
+    console.log("The current Ip Address is: ", get_ip());
     return res.send("Hello from Node server!");
 });
-app.get("/connect", get_connection);
-app.get("/server", get_server);
-app.get("/protocols", get_protocols);
-app.get("/runs", get_runs);
-app.post("/runs", post_run);
-app.post("/execute", post_execute);
-app.get("/runStatus", get_runStatus);
-app.get('/lights', get_lights);
-app.post('/lights', post_lights);
-function get_connection(req, res) {
+app.get("/connect", (req, res) => {
     console.log("Called get_connection");
     const ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
     const ipv6Pattern = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
-    if (ipv4Pattern.test(robotIP)) {
+    const tempId = get_ip();
+    if (ipv4Pattern.test(tempId)) {
         // Check if it's a valid IPv4 address
-        const parts = robotIP.split('.');
+        const parts = tempId.split('.');
         for (const part of parts) {
             const num = parseInt(part, 10);
             if (num < 0 || num > 255) {
+                console.log("No robot is connected");
                 return res.status(404).send('No robot IP address found. Make sure the robot is turned on!');
             }
         }
-        return res.status(200).json({ data: robotIP });
+        console.log("Robot is connected", tempId);
+        return res.status(200).json({ data: tempId });
     }
-    else if (ipv6Pattern.test(robotIP)) {
+    else if (ipv6Pattern.test(tempId)) {
         // Check if it's a valid IPv6 address
-        return res.status(200).json({ data: robotIP });
+        console.log("Robot is connected", tempId);
+        return res.status(200).json({ data: tempId });
     }
+    console.log("No robot is connected");
     return res.status(404).send('No robot IP address found. Make sure the robot is turned on!');
-}
-function get_server(req, res) {
-    console.log("Called get_server");
-    axios_1.default
-        .get(pythonServer + "/")
-        .then((response) => {
-        const responseJson = response.data;
-        return res.json({ data: responseJson });
-    })
-        .catch((error) => {
-        console.error("Error occurred", error);
-        return res.status(500).json({ error: "Internal Server Error" });
-    });
-}
-function get_data(req) {
-    console.log("Called get_data");
-    return new Promise((resolve, reject) => {
-        try {
-            let data = '';
-            req.on('data', (chunk) => {
-                data += chunk.toString();
-            });
-            req.on('end', () => {
-                req.body = JSON.parse(data);
-                resolve(data);
-            });
-        }
-        catch (error) {
-            reject(error);
-        }
-    });
-}
-function get_protocols(req, res) {
-    console.log("Called get_protocols");
-    axios_1.default
-        .get(pythonServer + "/protocols")
-        .then((response) => {
-        const responseJson = response.data;
-        return res.json({ data: responseJson });
-    })
-        .catch((error) => {
-        console.error("Error occurred", error);
-        return res.status(500).json({ error: "Internal Server Error" });
-    });
-}
-function get_runs(req, res) {
-    console.log("Called get_runs");
-    axios_1.default
-        .get(pythonServer + "/runs")
-        .then((response) => {
-        const responseJson = response.data;
-        return res.json({ data: responseJson });
-    })
-        .catch((error) => {
-        console.error("Error occurred", error);
-        return res.status(500).json({ error: "Internal Server Error" });
-    });
-}
-function post_run(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log("Called post_run");
-        const body = yield get_data(req);
-        console.log(body);
-        yield (0, axios_1.default)({
-            method: 'post',
-            url: pythonServer + "/runs",
-            data: body,
-            headers: headers
-        }).then(response => {
-            const responseJson = response.data;
-            return res.json({ data: responseJson });
-        })
-            .catch((error) => {
-            console.error("Error occurred", error);
-            return res.status(500).json({ error: "Internal Server Error" });
-        });
-    });
-}
-function post_execute(req, res) {
-    console.log("Called post_execute");
-    axios_1.default
-        .post(pythonServer + "/execute")
-        .then((response) => {
-        const responseJson = response.data;
-        return res.json({ data: responseJson });
-    })
-        .catch((error) => {
-        console.error("Error occurred", error);
-        return res.status(500).json({ error: "Internal Server Error" });
-    });
-}
-function get_runStatus(req, res) {
-    console.log("Called get_runStatus");
-    axios_1.default
-        .get(pythonServer + "/runStatus")
-        .then((response) => {
-        const responseJson = response.data;
-        return res.json({ data: responseJson });
-    })
-        .catch((error) => {
-        console.error("Error occurred", error);
-        return res.status(500).json({ error: "Internal Server Error" });
-    });
-}
-function get_lights(req, res) {
-    console.log("Called get_lights");
-    axios_1.default.get(pythonServer + "/lights")
-        .then((response) => {
-        const responseJson = response.data;
-        return res.json({ data: responseJson });
-    })
-        .catch((error) => {
-        console.error("Error occurred", error);
-        return res.status(500).json({ error: "Internal Server Error" });
-    });
-}
-function post_lights(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log("Called post_lights");
-        console.log("post lights");
-        const body = yield get_data(req);
-        console.log(body);
-        (0, axios_1.default)({
-            method: 'post',
-            url: pythonServer + "/lights",
-            data: body,
-            headers: headers
-        }).then(response => {
-            const responseJson = response.data;
-            return res.json({ data: responseJson });
-        })
-            .catch((error) => {
-            console.error("Error occurred", error);
-            return res.status(500).json({ error: "Internal Server Error" });
-        });
-    });
-}
+});
 //      Websocket functions     //
 clientInstance.on("connectFailed", function (error) {
     console.log("Connect Error: " + error.toString());
@@ -260,6 +138,168 @@ clientInstance.on("connect", function (connection) {
         }
     }
 });
+const wsServer = new ws_1.default.Server({ port: WSPORT });
+wsServer.on('connection', (ws) => {
+    console.log(`New client connected on PORT ${WSPORT}`);
+    ws.on('message', (message) => {
+        console.log(`Received message: ${message}`);
+        handleWsMessages(message, ws);
+    });
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+});
+function handleWsMessages(message, ws) {
+    const json = JSON.parse(message);
+    console.log(json.type);
+    switch (json.type) {
+        case "PING": {
+            console.log("PING");
+            const response = JSON.stringify({ type: "PING", payload: "PONG" });
+            ws.send(response);
+            break;
+        }
+        case "SERVER": {
+            console.log("SERVER");
+            wsGetServer(ws);
+            break;
+        }
+        case "ROBOT": {
+            console.log("ROBOT");
+            wsGetRobot(ws);
+            break;
+        }
+        case "PROTOCOLS": {
+            console.log("PROTOCOLS");
+            wsGetProtocols(ws);
+            break;
+        }
+        case "RUN": {
+            console.log("RUN");
+            const protocol_id = json.protocol_id;
+            wsPostRun(ws, protocol_id);
+            break;
+        }
+        case "RUN_STATUS": {
+            console.log("RUN_STATUS");
+            wsRunStatus(ws);
+            break;
+        }
+        default:
+            console.log("Default");
+            break;
+    }
+}
+function wsGetServer(ws) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield axios_1.default.get(pythonServer + "/");
+            console.log(response.status);
+            console.log(response.data);
+            if (response.status == 200) {
+                const wsResponse = { type: "Server", payload: response.data };
+                ws.send(JSON.stringify(wsResponse));
+            }
+            else {
+                const wsResponse = { type: "Server", payload: response.data };
+                console.error(`Non-200 response from Flask ${response.status}`);
+                ws.send(JSON.stringify(wsResponse));
+            }
+        }
+        catch (error) {
+            console.error("Axios error occurred");
+        }
+    });
+}
+function wsGetRobot(ws) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield axios_1.default.get(pythonServer + "/connect");
+            console.log(response.status);
+            console.log(response.data);
+            if (response.status == 200) {
+                const wsResponse = { type: "Robot", payload: response.data };
+                ws.send(JSON.stringify(wsResponse));
+            }
+            else {
+                console.error(`Non-200 response from Flask ${response.status}`);
+                const wsResponse = { type: "Robot", payload: response.data };
+                ws.send(JSON.stringify(wsResponse));
+            }
+        }
+        catch (error) {
+            console.error("Axios error occurred");
+        }
+    });
+}
+function updateRobotIP(state) {
+    const wsResponse = { type: "Robot", payload: `${state}` };
+    wsServer.clients.forEach((client) => {
+        if (client.readyState === ws_1.default.OPEN) {
+            client.send(JSON.stringify(wsResponse));
+        }
+    });
+}
+function wsGetProtocols(ws) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield axios_1.default.get(pythonServer + "/protocols");
+            console.log(response.status);
+            console.log(response.data);
+            if (response.status == 200) {
+                const wsResponse = { type: "Protocols", payload: response.data };
+                ws.send(JSON.stringify(wsResponse));
+            }
+            else {
+                console.error(`Non-200 response from Flask ${response.status}`);
+                const wsResponse = { type: "Protocols", payload: response.data };
+                ws.send(JSON.stringify(wsResponse));
+            }
+        }
+        catch (error) {
+            console.error("Axios error occurred");
+        }
+    });
+}
+function wsPostRun(ws, protocol_id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const body = { "protocol_id": protocol_id };
+            console.log(body);
+            const response = yield axios_1.default.post(pythonServer + "/runs", body, { headers: headers });
+            console.log(response.status);
+            console.log(response.data);
+            if (response.status == 201) {
+                const wsResponse = { type: "Run", payload: response.data };
+                ws.send(JSON.stringify(wsResponse));
+            }
+            else {
+                console.error(`Non-201 response from Flask ${response.status}`);
+                const wsResponse = { type: "Run", payload: response.data };
+                ws.send(JSON.stringify(wsResponse));
+            }
+        }
+        catch (error) {
+            console.error("Axios error occurred");
+        }
+    });
+}
+function wsRunStatus(ws) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield axios_1.default.get(pythonServer + "/runStatus");
+            console.log(response.status);
+            console.log(response.data);
+            if (response.status == 200) {
+                const wsResponse = { type: "RunStatus", payload: response.data };
+                ws.send(JSON.stringify(wsResponse));
+            }
+        }
+        catch (error) {
+            console.error("Axios error occurred");
+        }
+    });
+}
 app.listen(PORT, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
 });
