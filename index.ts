@@ -3,7 +3,7 @@ import express, { Express, Request, Response } from "express"; // is a web app f
 import DiscoveryClient, { SERVICE_EVENT, SERVICE_REMOVED_EVENT } from '@opentrons/discovery-client';
 import Service from "./Types/Service";
 
-import { getIpAddress } from "./ws_robot/ws_robot_functions";
+import { getIpAddress } from "./ws_functions/ws_robot_functions";
 
 
 const robot = new DiscoveryClient();

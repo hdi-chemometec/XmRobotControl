@@ -29,7 +29,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express")); // is a web app framework used for building APIs.
 const discovery_client_1 = __importStar(require("@opentrons/discovery-client"));
-const ws_robot_functions_1 = require("./ws_robot/ws_robot_functions");
+const ws_robot_functions_1 = require("./ws_functions/ws_robot_functions");
 const robot = new discovery_client_1.default();
 let robotIP = "";
 function get_ip() {
