@@ -52,7 +52,7 @@ export function waitForServerConnection() {
   }, 10000);
 }
 
-function waitForInstrumentConnection() {
+export function waitForInstrumentConnection() {
 setTimeout(function() {
   const instrumentConnection = getInstrumentConnection();
   console.log("Instrument connection state: ", instrumentConnection);

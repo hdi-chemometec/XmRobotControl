@@ -2,6 +2,7 @@ import { Message, client } from 'websocket';
 import { InstrumentStates } from "../Types/instrumentStates";
 import { setInstrumentState } from '../startUp';
 import { sendMessageToClient } from './ws_client_functions';
+import { waitForInstrumentConnection } from '../startUp';
 
 /*            Instrument Websocket functions            */
 
@@ -30,6 +31,7 @@ export const startInstrumentConnection = () => {
 
 clientInstance.on("connectFailed", function () {
   console.log("Connection to instrument failed");
+  waitForInstrumentConnection();
 });
 
 clientInstance.on("connect", function (connection) {
@@ -42,6 +44,7 @@ clientInstance.on("connect", function (connection) {
 
     connection.on("close", function () {
         console.log("Instrument  closed");
+        waitForInstrumentConnection();
     });
 
     connection.on("message", function (message: Message) {
