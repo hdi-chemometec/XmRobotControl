@@ -27,7 +27,6 @@ const startInstrumentConnection = () => {
 exports.startInstrumentConnection = startInstrumentConnection;
 clientInstance.on("connectFailed", function () {
     console.log("Connection to instrument failed");
-    (0, startUp_2.waitForInstrumentConnection)();
 });
 clientInstance.on("connect", function (connection) {
     console.log("Instrument Connected");
@@ -37,7 +36,8 @@ clientInstance.on("connect", function (connection) {
     });
     connection.on("close", function () {
         console.log("Instrument  closed");
-        (0, startUp_2.waitForInstrumentConnection)();
+        setInstrumentConnection(false);
+        (0, startUp_2.reconnectToInstrument)();
     });
     connection.on("message", function (message) {
         console.log("Received message from instrument", message);
