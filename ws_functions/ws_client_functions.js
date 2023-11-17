@@ -8,6 +8,7 @@ const ws_1 = __importDefault(require("ws"));
 const REST_robot_functions_1 = require("./REST_robot_functions");
 const ws_instrument_functions_1 = require("./ws_instrument_functions");
 const flowControl_1 = require("../helper_functions/flowControl");
+const startUp_1 = require("../startUp");
 /*            Client websocket functions            */
 let wsClient = false;
 const connectedClients = new Set();
@@ -33,6 +34,8 @@ function startClientServer() {
         });
         ws.on('close', () => {
             console.log('Client disconnected');
+            setWsClient(false);
+            (0, startUp_1.reconnectToClient)();
         });
         function fetchRunStatus() {
             (0, REST_robot_functions_1.wsRunStatus)(globalWs);

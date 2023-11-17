@@ -2,6 +2,7 @@ import WebSocket from 'ws';
 import { wsGetServer, wsGetRobot, wsGetProtocols, wsPostRun, wsRun, wsRunStatus } from "./REST_robot_functions";
 import { fromServerSendMessageToInstrument } from './ws_instrument_functions';
 import  { shouldFlowStart, startControlFlow } from '../helper_functions/flowControl';
+import { reconnectToClient } from '../startUp';
 
 /*            Client websocket functions            */
 let wsClient: boolean = false;
@@ -33,6 +34,8 @@ export function startClientServer(){
     
       ws.on('close', () => {
         console.log('Client disconnected');
+        setWsClient(false);
+        reconnectToClient();
       });      
 
       function fetchRunStatus() { //pulling run status from robot
