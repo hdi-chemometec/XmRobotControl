@@ -4,6 +4,7 @@ exports.fromServerSendMessageToInstrument = exports.startInstrumentConnection = 
 const websocket_1 = require("websocket");
 const startUp_1 = require("../startUp");
 const ws_client_functions_1 = require("./ws_client_functions");
+const startUp_2 = require("../startUp");
 /*            Instrument Websocket functions            */
 const clientInstance = new websocket_1.client();
 const Instrument_WS_PORT = 80;
@@ -17,12 +18,7 @@ function setInstrumentConnection(state) {
 let sendMessageToInstrument;
 function getInstrumentConnection() {
     const connection = getConnectionState();
-    if (!connection) {
-        return false;
-    }
-    else {
-        return true;
-    }
+    return connection;
 }
 exports.getInstrumentConnection = getInstrumentConnection;
 const startInstrumentConnection = () => {
@@ -31,6 +27,7 @@ const startInstrumentConnection = () => {
 exports.startInstrumentConnection = startInstrumentConnection;
 clientInstance.on("connectFailed", function () {
     console.log("Connection to instrument failed");
+    (0, startUp_2.waitForInstrumentConnection)();
 });
 clientInstance.on("connect", function (connection) {
     console.log("Instrument Connected");
@@ -40,6 +37,7 @@ clientInstance.on("connect", function (connection) {
     });
     connection.on("close", function () {
         console.log("Instrument  closed");
+        (0, startUp_2.waitForInstrumentConnection)();
     });
     connection.on("message", function (message) {
         console.log("Received message from instrument", message);

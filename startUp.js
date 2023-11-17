@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.waitForServerConnection = exports.waitForRobotConnection = exports.getInstrumentState = exports.setInstrumentState = exports.getRobotState = exports.setRobotState = void 0;
+exports.waitForInstrumentConnection = exports.waitForServerConnection = exports.waitForRobotConnection = exports.getInstrumentState = exports.setInstrumentState = exports.getRobotState = exports.setRobotState = void 0;
 const helperFunctions_1 = require("./helper_functions/helperFunctions");
 const REST_robot_functions_1 = require("./ws_functions/REST_robot_functions");
 const ws_instrument_functions_1 = require("./ws_functions/ws_instrument_functions");
@@ -82,6 +82,7 @@ function waitForInstrumentConnection() {
         }
     }, 10000);
 }
+exports.waitForInstrumentConnection = waitForInstrumentConnection;
 function waitForClientConnection() {
     setTimeout(function () {
         const clientConnection = (0, ws_client_functions_1.getWsClient)();
