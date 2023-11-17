@@ -12,7 +12,6 @@ const getFlowInstrumentState = () => {
     return flowInstrumentState;
 };
 const setFlowInstrumentState = (newState) => {
-    console.log("set instrument state: ", newState);
     flowInstrumentState = newState;
 };
 let flowRobotState = flowstates_1.FlowRobotStates.START;
@@ -20,13 +19,12 @@ const getFlowRobotState = () => {
     return flowRobotState;
 };
 const setFlowRobotState = (newState) => {
-    console.log("set robot state: ", newState);
     flowRobotState = newState;
 };
 const shouldFlowStart = () => {
     const instrument = (0, startUp_1.getInstrumentState)();
     const robot = (0, startUp_1.getRobotState)();
-    if (instrument == instrumentStates_1.InstrumentStates.UNKNOWN && robot == runState_1.RobotStates.IDLE) {
+    if ((instrument == instrumentStates_1.InstrumentStates.UNKNOWN || instrument == instrumentStates_1.InstrumentStates.IDLE) && robot == runState_1.RobotStates.IDLE) {
         return true;
     }
     else {
@@ -43,6 +41,10 @@ function startControlFlow() {
         console.log("Flow instrument state: ", getFlowInstrumentState());
         if (flowInstrument != flowstates_1.FlowInstrumentStates.DONE) {
             startControlFlow();
+        }
+        else { //reset states
+            setFlowInstrumentState(flowstates_1.FlowInstrumentStates.NOT_INITIALIZED);
+            setFlowRobotState(flowstates_1.FlowRobotStates.START);
         }
     }, 2000);
     console.log("\n");
@@ -160,6 +162,9 @@ const handleInstrumentState = (instrumentState) => {
                     break;
                 }
                 setFlowRobotState(flowstates_1.FlowRobotStates.START);
+                setFlowInstrumentState(flowstates_1.FlowInstrumentStates.NOT_INITIALIZED);
+            }
+            else if (instrument == instrumentStates_1.InstrumentStates.UNKNOWN) {
                 setFlowInstrumentState(flowstates_1.FlowInstrumentStates.NOT_INITIALIZED);
             }
             break;

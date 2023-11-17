@@ -10,7 +10,6 @@ const getFlowInstrumentState = () => {
     return flowInstrumentState;
 }
 const setFlowInstrumentState = (newState: FlowInstrumentStates) => {
-  console.log("set instrument state: ", newState);
   flowInstrumentState = newState;
 }
 
@@ -20,14 +19,13 @@ const getFlowRobotState = () => {
     return flowRobotState;
 }
 const setFlowRobotState = (newState: FlowRobotStates) => {
-  console.log("set robot state: ", newState);
   flowRobotState = newState;
 }
 
 export const shouldFlowStart = (): boolean => {
     const instrument = getInstrumentState();
     const robot = getRobotState();
-    if(instrument == InstrumentStates.UNKNOWN && robot == RobotStates.IDLE) {
+    if((instrument == InstrumentStates.UNKNOWN || instrument == InstrumentStates.IDLE) && robot == RobotStates.IDLE) {
         return true;
     } else {
         return false;
@@ -43,6 +41,9 @@ export function startControlFlow() {
         console.log("Flow instrument state: ", getFlowInstrumentState());
         if(flowInstrument != FlowInstrumentStates.DONE){
             startControlFlow();
+        } else { //reset states
+            setFlowInstrumentState(FlowInstrumentStates.NOT_INITIALIZED);
+            setFlowRobotState(FlowRobotStates.START);
         }
     }, 2000);
     console.log("\n");
@@ -159,7 +160,9 @@ const handleInstrumentState = (instrumentState: FlowInstrumentStates) => {
                 }
                 setFlowRobotState(FlowRobotStates.START);
                 setFlowInstrumentState(FlowInstrumentStates.NOT_INITIALIZED);
-            }
+            } else if(instrument == InstrumentStates.UNKNOWN) {
+                setFlowInstrumentState(FlowInstrumentStates.NOT_INITIALIZED);
+            } 
             break;
         }
         case FlowInstrumentStates.DONE: {
