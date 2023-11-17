@@ -17,15 +17,6 @@ function setInstrumentConnection(state: boolean) {
   connection_state = state;
 }
 
-let finishRun: boolean;
-export function getFinishRun(): boolean {
-  return finishRun;
-}
-
-function setFinishRun(state: boolean) {
-  finishRun = state;
-}
-
 
 let sendMessageToInstrument: (message: string) => void;
 
@@ -90,7 +81,6 @@ function handleReceivedMessage(message: Message) {
         break;
       }
       case "RUN": {
-        setFinishRun(false);
         const runBool: string = json.content;
         console.log("RUN: ", runBool);
         break;
@@ -98,11 +88,6 @@ function handleReceivedMessage(message: Message) {
       case "DATA_READY": {
         const finishedBool: string = json.content;
         console.log("DATA_READY", finishedBool);
-        if(finishedBool == "true") {
-          setFinishRun(true);
-        } else {
-          setFinishRun(false);
-        }
         break;
       }
       default:{

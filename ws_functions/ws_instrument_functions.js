@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fromServerSendMessageToInstrument = exports.startInstrumentConnection = exports.getInstrumentConnection = exports.getFinishRun = void 0;
+exports.fromServerSendMessageToInstrument = exports.startInstrumentConnection = exports.getInstrumentConnection = void 0;
 const websocket_1 = require("websocket");
 const startUp_1 = require("../startUp");
 const ws_client_functions_1 = require("./ws_client_functions");
@@ -13,14 +13,6 @@ function getConnectionState() {
 }
 function setInstrumentConnection(state) {
     connection_state = state;
-}
-let finishRun;
-function getFinishRun() {
-    return finishRun;
-}
-exports.getFinishRun = getFinishRun;
-function setFinishRun(state) {
-    finishRun = state;
 }
 let sendMessageToInstrument;
 function getInstrumentConnection() {
@@ -80,7 +72,6 @@ function handleReceivedMessage(message) {
                 break;
             }
             case "RUN": {
-                setFinishRun(false);
                 const runBool = json.content;
                 console.log("RUN: ", runBool);
                 break;
@@ -88,12 +79,6 @@ function handleReceivedMessage(message) {
             case "DATA_READY": {
                 const finishedBool = json.content;
                 console.log("DATA_READY", finishedBool);
-                if (finishedBool == "true") {
-                    setFinishRun(true);
-                }
-                else {
-                    setFinishRun(false);
-                }
                 break;
             }
             default: {
