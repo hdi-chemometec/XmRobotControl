@@ -17,16 +17,11 @@ function setInstrumentConnection(state: boolean) {
   connection_state = state;
 }
 
-
 let sendMessageToInstrument: (message: string) => void;
 
 export function getInstrumentConnection(): boolean {
   const connection = getConnectionState();
-  if(!connection) {
-    return false;
-  } else {
-    return true;
-  }
+  return connection;
 }
 
 export const startInstrumentConnection = () => {
