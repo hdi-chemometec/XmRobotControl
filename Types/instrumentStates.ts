@@ -1,4 +1,4 @@
-export enum States {
+export enum InstrumentStates {
     IDLE = 'IDLE',
     BUSY = 'BUSY',
     INTRANSITION = 'INTRANSITION',
