@@ -1,5 +1,7 @@
 import axios from "axios"; // library used for making HTTP requests to servers. E.g. the flask server
 import WebSocket from 'ws';
+import { setRobotState } from "../index";
+import { RobotStates } from "../Types/runState";
 
 const headers = {
   'Content-Type': 'application/json'
@@ -7,29 +9,41 @@ const headers = {
 
 const pythonServer = "http://127.0.0.1:5000";
 
-async function getIpAddress() {
+export async function informPythonServerIpUpdate() {
   try {
     const response = await axios.get(pythonServer + "/connect");
-    console.log(response.status);
-    console.log(response.data);
     if(response.status == 200) {
       console.log("Invoked python server to check if robot is connected")
     }
   } catch (error) {
-    console.log("Axios error occurred ", error);
+    console.log("Python server is not running");
   }
 }
 
-async function wsGetServer(ws: WebSocket) {
+export const getServer = async (): Promise<boolean> => {
   try {
     const response = await axios.get(pythonServer + "/");
-    console.log(response.status);
-    console.log(response.data);
     if(response.status == 200) {
-      const wsResponse = {type: "Server", payload: response.data}
+      console.log(`Python server is running ${response.status}`);
+      return true;
+    } else {
+      console.log(`Non-200 response from Flask ${response.status}`);
+      return false;
+    }
+  } catch (error) {
+    console.error("Python server is not running");
+    return false;
+  }
+}
+
+export async function wsGetServer(ws: WebSocket) {
+  try {
+    const response = await axios.get(pythonServer + "/");
+    if(response.status == 200) {
+      const wsResponse = {type: "SERVER", content: response.data}
       ws.send(JSON.stringify(wsResponse));
     } else {
-      const wsResponse = {type: "Server", payload: response.data}
+      const wsResponse = {type: "SERVER", content: response.data}
       console.error(`Non-200 response from Flask ${response.status}`);
       ws.send(JSON.stringify(wsResponse));
     }
@@ -38,36 +52,34 @@ async function wsGetServer(ws: WebSocket) {
   }
 }
 
-async function wsGetRobot(ws: WebSocket) {
+export async function wsGetRobot(ws: WebSocket): Promise<boolean> {
   try {
     const response = await axios.get(pythonServer + "/connect");
-    console.log(response.status);
-    console.log(response.data);
     if(response.status == 200) {
-      const wsResponse = {type: "Robot", payload: response.data}
+      const wsResponse = {type: "ROBOT", content: response.data}
       ws.send(JSON.stringify(wsResponse));
+      return true;
     } else {
       console.error(`Non-200 response from Flask ${response.status}`);
-      const wsResponse = {type: "Robot", payload: response.data}
+      const wsResponse = {type: "ROBOT", content: response.data}
       ws.send(JSON.stringify(wsResponse));
+      return false;
     }
   } catch (error) {
     console.error("Axios error occurred");
+    return false;
   }
 }
 
-
-async function wsGetProtocols(ws: WebSocket) {
+export async function wsGetProtocols(ws: WebSocket) {
   try {
     const response = await axios.get(pythonServer + "/protocols");
-    console.log(response.status);
-    console.log(response.data);
     if(response.status == 200) {
-      const wsResponse = {type: "Protocols", payload: response.data}
+      const wsResponse = {type: "PROTOCOLS", content: response.data}
       ws.send(JSON.stringify(wsResponse));
     } else {
       console.error(`Non-200 response from Flask ${response.status}`);
-      const wsResponse = {type: "Protocols", payload: response.data}
+      const wsResponse = {type: "PROTOCOLS", content: response.data}
       ws.send(JSON.stringify(wsResponse));
     }
   } catch (error) {
@@ -75,19 +87,16 @@ async function wsGetProtocols(ws: WebSocket) {
   }
 }
 
-async function wsPostRun(ws: WebSocket, protocol_id: string) {
+export async function wsPostRun(ws: WebSocket, protocol_id: string) {
   try {
     const body = {"protocol_id": protocol_id}
-    console.log(body);
     const response = await axios.post(pythonServer + "/runs", body, {headers: headers});
-    console.log(response.status);
-    console.log(response.data);
     if(response.status == 201) {
-      const wsResponse = {type: "Run", payload: response.data}
+      const wsResponse = {type: "RUN", content: response.data}
       ws.send(JSON.stringify(wsResponse));
     } else {
       console.error(`Non-201 response from Flask ${response.status}`);
-      const wsResponse = {type: "Run", payload: response.data}
+      const wsResponse = {type: "RUN", content: response.data}
       ws.send(JSON.stringify(wsResponse));
     }
   } catch (error) {
@@ -95,19 +104,17 @@ async function wsPostRun(ws: WebSocket, protocol_id: string) {
   }
 }
   
-async function wsRun(ws: WebSocket, protocol_id: string, command: string) {
+export async function wsRun(ws: WebSocket, protocol_id: string, command: string) {
   try {
     const body = {"protocol_id": protocol_id, "command": command}
-    console.log(body);
     const response = await axios.post(pythonServer + "/command", body, {headers: headers});
-    console.log(response.status);
-    console.log(response.data);
-    if(response.status == 200) {
-      const wsResponse = {type: "Command", payload: response.data}
+    if(response.status == 201) {
+      console.log("Command sent to robot");
+      const wsResponse = {type: "COMMAND", content: response.data}
       ws.send(JSON.stringify(wsResponse));
     } else {
-      console.error(`Non-200 response from Flask ${response.status}`);
-      const wsResponse = {type: "Command", payload: response.data}
+      console.error(`Non-201 response from Flask ${response.status}`);
+      const wsResponse = {type: "COMMAND", content: response.data}
       ws.send(JSON.stringify(wsResponse));
     }
   } catch (error) {
@@ -115,18 +122,34 @@ async function wsRun(ws: WebSocket, protocol_id: string, command: string) {
   }
 }
 
-async function wsRunStatus(ws: WebSocket) {
+export async function sendCommand( command: string) {
   try {
-    const response = await axios.get(pythonServer + "/runStatus");
-    console.log(response.status);
-    console.log(response.data);
-    if(response.status == 200) {
-      const wsResponse = {type: "RunStatus", payload: response.data}
-      ws.send(JSON.stringify(wsResponse));
+    const body = {"command": command}
+    const response = await axios.post(pythonServer + "/command", body, {headers: headers});
+    if(response.status == 201) {
+      console.log("Command sent to robot");
+      const wsResponse = {type: "COMMAND", content: response.data}
+      console.log(wsResponse);
+    } else {
+      console.error(`Non-201 response from Flask ${response.status}`);
+      const wsResponse = {type: "COMMAND", content: response.data}
+      console.error(wsResponse);
     }
   } catch (error) {
-    console.error("Axios error occurred")
+    console.error("Axios error occurred");
   }
 }
 
-export { getIpAddress, wsGetServer, wsGetRobot, wsGetProtocols, wsPostRun, wsRun, wsRunStatus };
+export async function wsRunStatus(ws: WebSocket) {
+  try {
+    const response = await axios.get(pythonServer + "/runStatus");
+    if(response.status == 200) {
+      const wsResponse = {type: "RUN_STATUS", content: response.data}
+      setRobotState(response.data);
+      ws.send(JSON.stringify(wsResponse));
+    } 
+  } catch (error) {
+  const wsResponse = {type: "RUN_STATUS", content: RobotStates.UNKNOWN}
+  ws.send(JSON.stringify(wsResponse));
+  }
+}
