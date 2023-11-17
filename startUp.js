@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.waitForInstrumentConnection = exports.waitForServerConnection = exports.waitForRobotConnection = exports.getInstrumentState = exports.setInstrumentState = exports.getRobotState = exports.setRobotState = void 0;
+exports.reconnectToClient = exports.reconnectToInstrument = exports.waitForRobotConnection = exports.getInstrumentState = exports.setInstrumentState = exports.getRobotState = exports.setRobotState = void 0;
 const helperFunctions_1 = require("./helper_functions/helperFunctions");
 const REST_robot_functions_1 = require("./ws_functions/REST_robot_functions");
 const ws_instrument_functions_1 = require("./ws_functions/ws_instrument_functions");
@@ -66,13 +66,13 @@ function waitForServerConnection() {
         }
     }, 10000);
 }
-exports.waitForServerConnection = waitForServerConnection;
 function waitForInstrumentConnection() {
     setTimeout(function () {
         const instrumentConnection = (0, ws_instrument_functions_1.getInstrumentConnection)();
         console.log("Instrument connection state: ", instrumentConnection);
         if (!instrumentConnection) {
             console.log("Instrument is not connected");
+            (0, ws_instrument_functions_1.startInstrumentConnection)();
             waitForInstrumentConnection();
         }
         else {
@@ -82,7 +82,6 @@ function waitForInstrumentConnection() {
         }
     }, 10000);
 }
-exports.waitForInstrumentConnection = waitForInstrumentConnection;
 function waitForClientConnection() {
     setTimeout(function () {
         const clientConnection = (0, ws_client_functions_1.getWsClient)();
@@ -94,5 +93,34 @@ function waitForClientConnection() {
         else {
             console.log("Client is connected");
         }
+    }, 10000);
+}
+function reconnectToInstrument() {
+    setTimeout(function () {
+        const instrumentConnection = (0, ws_instrument_functions_1.getInstrumentConnection)();
+        console.log("Instrument connection state: ", instrumentConnection);
+        if (!instrumentConnection) {
+            console.log("Instrument is not connected");
+            (0, ws_instrument_functions_1.startInstrumentConnection)(); //server is client is the instance must be restarted
+            reconnectToInstrument();
+        }
+        else {
+            console.log("Instrument is reconnected");
+        }
     }, 3000);
 }
+exports.reconnectToInstrument = reconnectToInstrument;
+function reconnectToClient() {
+    setTimeout(function () {
+        const clientConnection = (0, ws_client_functions_1.getWsClient)();
+        console.log("Client connection state: ", clientConnection);
+        if (!clientConnection) {
+            console.log("Client is not connected");
+            reconnectToClient();
+        }
+        else {
+            console.log("Client is reconnected");
+        }
+    }, 3000);
+}
+exports.reconnectToClient = reconnectToClient;

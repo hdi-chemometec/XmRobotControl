@@ -6,7 +6,6 @@ import { RobotStates } from "./Types/runState";
 import { InstrumentStates } from "./Types/instrumentStates";
 
 let robotState: RobotStates = RobotStates.UNKNOWN;
-
 export const setRobotState = (newStatus: RobotStates) => {
   robotState = newStatus;
 }
@@ -15,7 +14,6 @@ export const getRobotState = () => {
 }
 
 let instrumentState: InstrumentStates = InstrumentStates.NO_STATE;
-
 export const setInstrumentState = (newStatus: InstrumentStates) => {
   instrumentState = newStatus;
 }
@@ -37,7 +35,7 @@ export async function waitForRobotConnection() {
   }, 10000);
 }
 
-export function waitForServerConnection() {
+function waitForServerConnection() {
   setTimeout(function() {
     const serverConnection = getServer();
     console.log("Python server connection state: ", serverConnection);
@@ -52,18 +50,19 @@ export function waitForServerConnection() {
   }, 10000);
 }
 
-export function waitForInstrumentConnection() {
-setTimeout(function() {
-  const instrumentConnection = getInstrumentConnection();
-  console.log("Instrument connection state: ", instrumentConnection);
-  if(!instrumentConnection) {
-    console.log("Instrument is not connected");
-    waitForInstrumentConnection();
-  } else {
-    console.log("Instrument is connected");
-    startClientServer();
-    waitForClientConnection();
-  }
+function waitForInstrumentConnection() {
+  setTimeout(function() {
+    const instrumentConnection = getInstrumentConnection();
+    console.log("Instrument connection state: ", instrumentConnection);
+    if(!instrumentConnection) {
+      console.log("Instrument is not connected");
+      startInstrumentConnection();
+      waitForInstrumentConnection();
+    } else {
+      console.log("Instrument is connected");
+      startClientServer();
+      waitForClientConnection();
+    }
   }, 10000);
 }
 
@@ -76,6 +75,34 @@ function waitForClientConnection() {
       waitForClientConnection();
     } else {
       console.log("Client is connected");
+    }
+  }, 10000);
+}
+
+
+export function reconnectToInstrument() {
+  setTimeout(function() {
+    const instrumentConnection = getInstrumentConnection();
+    console.log("Instrument connection state: ", instrumentConnection);
+    if(!instrumentConnection) {
+      console.log("Instrument is not connected");
+      startInstrumentConnection(); //server is client is the instance must be restarted
+      reconnectToInstrument();
+    } else {
+      console.log("Instrument is reconnected");
+    }
+  }, 3000);
+}
+
+export function reconnectToClient() {
+  setTimeout(function() {
+    const clientConnection = getWsClient()
+    console.log("Client connection state: ", clientConnection);
+    if(!clientConnection) {
+      console.log("Client is not connected");
+      reconnectToClient();
+    } else {
+      console.log("Client is reconnected");
     }
   }, 3000);
 }
