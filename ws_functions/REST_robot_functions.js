@@ -189,10 +189,13 @@ function wsRunStatus(ws) {
                 (0, startUp_1.setRobotState)(response.data);
                 ws.send(JSON.stringify(wsResponse));
             }
+            else {
+                const wsResponse = { type: "RUN_STATUS", content: runState_1.RobotStates.UNKNOWN };
+                ws.send(JSON.stringify(wsResponse));
+            }
         }
         catch (error) {
-            const wsResponse = { type: "RUN_STATUS", content: runState_1.RobotStates.UNKNOWN };
-            ws.send(JSON.stringify(wsResponse));
+            console.error("Axios error occurred");
         }
     });
 }

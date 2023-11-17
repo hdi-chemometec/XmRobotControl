@@ -147,9 +147,11 @@ export async function wsRunStatus(ws: WebSocket) {
       const wsResponse = {type: "RUN_STATUS", content: response.data}
       setRobotState(response.data);
       ws.send(JSON.stringify(wsResponse));
-    } 
+    } else {
+      const wsResponse = {type: "RUN_STATUS", content: RobotStates.UNKNOWN}
+      ws.send(JSON.stringify(wsResponse));
+    }
   } catch (error) {
-  const wsResponse = {type: "RUN_STATUS", content: RobotStates.UNKNOWN}
-  ws.send(JSON.stringify(wsResponse));
+    console.error("Axios error occurred");
   }
 }
