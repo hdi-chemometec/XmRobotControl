@@ -1,41 +1,99 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.fromServerSendMessageToInstrument = exports.startInstrumentConnection = exports.getInstrumentConnection = exports.getFinishRun = void 0;
 const websocket_1 = require("websocket");
-const instrument_states_1 = require("../Types/instrument_states");
+const index_1 = require("../index");
+const ws_client_functions_1 = require("./ws_client_functions");
 /*            Instrument Websocket functions            */
 const clientInstance = new websocket_1.client();
 const Instrument_WS_PORT = 80;
-let instrument_state = instrument_states_1.States.NO_STATE;
-clientInstance.on("connectFailed", function (error) {
-    console.log("Connect Error: " + error.toString());
-});
-clientInstance.on("connect", function (connection) {
-    console.log("WebSocket Client Connected");
-    transmitMessageState(connection);
-    connection.on("error", function (error) {
-        console.log("Connection Error: " + error.toString());
-    });
-    connection.on("close", function () {
-        console.log("Connection closed");
-    });
-    connection.on("message", function (message) {
-        handleReceivedMessage(message);
-    });
-});
-function transmitMessageState(connection) {
-    if (connection.connected) {
-        const json = JSON.stringify({ type: "STATE" });
-        connection.send(json);
+let connection_state = false;
+function getConnectionState() {
+    return connection_state;
+}
+function setInstrumentConnection(state) {
+    connection_state = state;
+}
+let finishRun;
+function getFinishRun() {
+    return finishRun;
+}
+exports.getFinishRun = getFinishRun;
+function setFinishRun(state) {
+    finishRun = state;
+}
+let sendMessageToInstrument;
+function getInstrumentConnection() {
+    const connection = getConnectionState();
+    if (!connection) {
+        return false;
+    }
+    else {
+        return true;
     }
 }
+exports.getInstrumentConnection = getInstrumentConnection;
+const startInstrumentConnection = () => {
+    clientInstance.connect(`ws://0.0.0.0:${Instrument_WS_PORT}/ws`);
+};
+exports.startInstrumentConnection = startInstrumentConnection;
+clientInstance.on("connectFailed", function () {
+    console.log("Connection to instrument failed");
+});
+clientInstance.on("connect", function (connection) {
+    console.log("Instrument Connected");
+    setInstrumentConnection(true);
+    connection.on("error", function (error) {
+        console.log("Instrument error occurred :" + error.toString());
+    });
+    connection.on("close", function () {
+        console.log("Instrument  closed");
+    });
+    connection.on("message", function (message) {
+        console.log("Received message from instrument", message);
+        handleReceivedMessage(message);
+    });
+    sendMessageToInstrument = function (message) {
+        try {
+            connection.send(message);
+        }
+        catch (error) {
+            console.log("Instrument is not connected");
+        }
+    };
+});
 function handleReceivedMessage(message) {
-    console.log("State message received: ", message);
     if (message.type === 'utf8') {
         const json = JSON.parse(message.utf8Data);
+        console.log("Received message from instrument: ", json);
+        (0, ws_client_functions_1.sendMessageToClient)(json); //inform client of changes
         switch (json.type) {
-            case "State": {
-                instrument_state = json.content;
-                console.log("State: ", instrument_state);
+            case "STATE": {
+                const instrumentState = json.content;
+                (0, index_1.setInstrumentState)(instrumentState);
+                console.log("STATE: ", instrumentState);
+                break;
+            }
+            case "INITIALIZE": {
+                const initializeBool = json.content;
+                console.log("INITIALIZE: ", initializeBool);
+                break;
+            }
+            case "RUN": {
+                setFinishRun(false);
+                const runBool = json.content;
+                console.log("RUN: ", runBool);
+                break;
+            }
+            case "DATA_READY": {
+                const finishedBool = json.content;
+                console.log("DATA_READY", finishedBool);
+                if (finishedBool == "true") {
+                    setFinishRun(true);
+                }
+                else {
+                    setFinishRun(false);
+                }
                 break;
             }
             default: {
@@ -45,4 +103,27 @@ function handleReceivedMessage(message) {
         }
     }
 }
-clientInstance.connect(`ws://0.0.0.0:${Instrument_WS_PORT}/ws`);
+// Export the sendMessage function
+const fromServerSendMessageToInstrument = function (messageToSend) {
+    switch (messageToSend) {
+        case "STATE": {
+            const stateRequest = JSON.stringify({ type: "STATE" });
+            sendMessageToInstrument(stateRequest);
+            break;
+        }
+        case "INITIALIZE": {
+            const initializeRequest = JSON.stringify({ type: "INITIALIZE" });
+            sendMessageToInstrument(initializeRequest);
+            break;
+        }
+        case "RUN": {
+            const runRequest = JSON.stringify({ type: "RUN", assay: "Count & Viability", measurement: "Protocols" });
+            sendMessageToInstrument(runRequest);
+            break;
+        }
+        default:
+            console.log("Default");
+            break;
+    }
+};
+exports.fromServerSendMessageToInstrument = fromServerSendMessageToInstrument;
