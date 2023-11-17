@@ -4,9 +4,9 @@ exports.startControlFlow = exports.shouldFlowStart = void 0;
 const flowstates_1 = require("../Types/flowstates");
 const instrumentStates_1 = require("../Types/instrumentStates");
 const runState_1 = require("../Types/runState");
-const index_1 = require("../index");
+const startUp_1 = require("../startUp");
 const ws_instrument_functions_1 = require("../ws_functions/ws_instrument_functions");
-const ws_robot_functions_1 = require("../ws_functions/ws_robot_functions");
+const REST_robot_functions_1 = require("../ws_functions/REST_robot_functions");
 let flowInstrumentState = flowstates_1.FlowInstrumentStates.NOT_INITIALIZED;
 const getFlowInstrumentState = () => {
     return flowInstrumentState;
@@ -24,8 +24,8 @@ const setFlowRobotState = (newState) => {
     flowRobotState = newState;
 };
 const shouldFlowStart = () => {
-    const instrument = (0, index_1.getInstrumentState)();
-    const robot = (0, index_1.getRobotState)();
+    const instrument = (0, startUp_1.getInstrumentState)();
+    const robot = (0, startUp_1.getRobotState)();
     if (instrument == instrumentStates_1.InstrumentStates.UNKNOWN && robot == runState_1.RobotStates.IDLE) {
         return true;
     }
@@ -49,14 +49,14 @@ function startControlFlow() {
 }
 exports.startControlFlow = startControlFlow;
 const handleRobotState = (robotState) => {
-    const robot = (0, index_1.getRobotState)();
+    const robot = (0, startUp_1.getRobotState)();
     if (robot == runState_1.RobotStates.FINISHING && flowRobotState != flowstates_1.FlowRobotStates.FINISHING) { //check if robot is finishing and only set if it is not already set
         setFlowRobotState(flowstates_1.FlowRobotStates.FINISHING);
     }
     switch (robotState) {
         case flowstates_1.FlowRobotStates.START: {
             if (robot == runState_1.RobotStates.PAUSED) { //this happens from run 2 and onwards as the robot stops after dropping the pipette
-                (0, ws_robot_functions_1.sendCommand)("play");
+                (0, REST_robot_functions_1.sendCommand)("play");
             }
             else if (robot == runState_1.RobotStates.RUNNING) { // this happens in the first run
                 setFlowRobotState(flowstates_1.FlowRobotStates.FETCHING_SAMPLE);
@@ -73,9 +73,9 @@ const handleRobotState = (robotState) => {
             break;
         }
         case flowstates_1.FlowRobotStates.DROP_SAMPLE: {
-            const instrument = (0, index_1.getInstrumentState)();
+            const instrument = (0, startUp_1.getInstrumentState)();
             if (instrument == instrumentStates_1.InstrumentStates.IDLE && flowInstrumentState == flowstates_1.FlowInstrumentStates.READY) { //when instrument is ready, drop sample
-                (0, ws_robot_functions_1.sendCommand)("play");
+                (0, REST_robot_functions_1.sendCommand)("play");
                 setFlowInstrumentState(flowstates_1.FlowInstrumentStates.ANALYZE_SAMPLE);
             }
             else if (robot == runState_1.RobotStates.PAUSED || robot == runState_1.RobotStates.FINISHING) { //we must wait for the robot to be done dropping the sample before analyzing
@@ -110,7 +110,7 @@ const handleInstrumentState = (instrumentState) => {
             if (flowRobot == flowstates_1.FlowRobotStates.FINISHING) { //check if robot has finished
                 setFlowInstrumentState(flowstates_1.FlowInstrumentStates.DONE);
             }
-            const instrument = (0, index_1.getInstrumentState)();
+            const instrument = (0, startUp_1.getInstrumentState)();
             if (instrument == instrumentStates_1.InstrumentStates.UNKNOWN) { //if instrument is not initialized, initialize it
                 (0, ws_instrument_functions_1.fromServerSendMessageToInstrument)("INITIALIZE");
                 setFlowInstrumentState(flowstates_1.FlowInstrumentStates.INITIALIZE_CALLED);
@@ -121,7 +121,7 @@ const handleInstrumentState = (instrumentState) => {
             break;
         }
         case flowstates_1.FlowInstrumentStates.INITIALIZE_CALLED: {
-            const instrument = (0, index_1.getInstrumentState)();
+            const instrument = (0, startUp_1.getInstrumentState)();
             if (instrument == instrumentStates_1.InstrumentStates.IDLE) { // instrument is initialized
                 setFlowInstrumentState(flowstates_1.FlowInstrumentStates.READY);
             }
@@ -140,12 +140,12 @@ const handleInstrumentState = (instrumentState) => {
             break;
         }
         case flowstates_1.FlowInstrumentStates.ANALYZE_SAMPLE: {
-            const instrument = (0, index_1.getInstrumentState)();
+            const instrument = (0, startUp_1.getInstrumentState)();
             if (instrument == instrumentStates_1.InstrumentStates.UNKNOWN) {
                 setFlowInstrumentState(flowstates_1.FlowInstrumentStates.NOT_INITIALIZED);
                 break;
             }
-            const robot = (0, index_1.getRobotState)();
+            const robot = (0, startUp_1.getRobotState)();
             if ((robot == runState_1.RobotStates.PAUSED || flowRobotState == flowstates_1.FlowRobotStates.FINISHING) && instrument == instrumentStates_1.InstrumentStates.IDLE) {
                 (0, ws_instrument_functions_1.fromServerSendMessageToInstrument)("RUN");
                 setFlowInstrumentState(flowstates_1.FlowInstrumentStates.ANALYZE_SAMPLE_DONE);
@@ -153,7 +153,7 @@ const handleInstrumentState = (instrumentState) => {
             break;
         }
         case flowstates_1.FlowInstrumentStates.ANALYZE_SAMPLE_DONE: {
-            const instrument = (0, index_1.getInstrumentState)();
+            const instrument = (0, startUp_1.getInstrumentState)();
             if (instrument == instrumentStates_1.InstrumentStates.IDLE) { //analyzing is done when instrument is idle
                 if (getFlowRobotState() == flowstates_1.FlowRobotStates.FINISHING) { //if robot is finished then instrument is done
                     setFlowInstrumentState(flowstates_1.FlowInstrumentStates.DONE);

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fromServerSendMessageToInstrument = exports.startInstrumentConnection = exports.getInstrumentConnection = exports.getFinishRun = void 0;
 const websocket_1 = require("websocket");
-const index_1 = require("../index");
+const startUp_1 = require("../startUp");
 const ws_client_functions_1 = require("./ws_client_functions");
 /*            Instrument Websocket functions            */
 const clientInstance = new websocket_1.client();
@@ -70,7 +70,7 @@ function handleReceivedMessage(message) {
         switch (json.type) {
             case "STATE": {
                 const instrumentState = json.content;
-                (0, index_1.setInstrumentState)(instrumentState);
+                (0, startUp_1.setInstrumentState)(instrumentState);
                 console.log("STATE: ", instrumentState);
                 break;
             }

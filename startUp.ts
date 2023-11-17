@@ -1,5 +1,5 @@
 import { getIp } from "./helper_functions/helperFunctions";
-import { getServer } from "./ws_functions/ws_robot_functions";
+import { getServer } from "./ws_functions/REST_robot_functions";
 import { getInstrumentConnection, startInstrumentConnection  } from './ws_functions/ws_instrument_functions';
 import { getWsClient, startClientServer } from "./ws_functions/ws_client_functions";
 import { RobotStates } from "./Types/runState";

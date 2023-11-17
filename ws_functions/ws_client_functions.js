@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendMessageToClient = exports.startClientServer = exports.getWsClient = void 0;
 const ws_1 = __importDefault(require("ws"));
-const ws_robot_functions_1 = require("./ws_robot_functions");
+const REST_robot_functions_1 = require("./REST_robot_functions");
 const ws_instrument_functions_1 = require("./ws_instrument_functions");
 const flowControl_1 = require("../helper_functions/flowControl");
 /*            Client websocket functions            */
@@ -35,7 +35,7 @@ function startClientServer() {
             console.log('Client disconnected');
         });
         function fetchRunStatus() {
-            (0, ws_robot_functions_1.wsRunStatus)(globalWs);
+            (0, REST_robot_functions_1.wsRunStatus)(globalWs);
         }
         setInterval(fetchRunStatus, 1000);
         function handleWsMessages(message, ws) {
@@ -48,24 +48,24 @@ function startClientServer() {
                     break;
                 }
                 case "SERVER": {
-                    (0, ws_robot_functions_1.wsGetServer)(ws);
+                    (0, REST_robot_functions_1.wsGetServer)(ws);
                     break;
                 }
                 case "ROBOT": {
-                    (0, ws_robot_functions_1.wsGetRobot)(ws);
+                    (0, REST_robot_functions_1.wsGetRobot)(ws);
                     break;
                 }
                 case "PROTOCOLS": {
-                    (0, ws_robot_functions_1.wsGetProtocols)(ws);
+                    (0, REST_robot_functions_1.wsGetProtocols)(ws);
                     break;
                 }
                 case "RUN": {
                     const protocol_id = json.protocolId;
-                    (0, ws_robot_functions_1.wsPostRun)(ws, protocol_id);
+                    (0, REST_robot_functions_1.wsPostRun)(ws, protocol_id);
                     break;
                 }
                 case "RUN_STATUS": {
-                    (0, ws_robot_functions_1.wsRunStatus)(ws);
+                    (0, REST_robot_functions_1.wsRunStatus)(ws);
                     break;
                 }
                 case "COMMAND": {
@@ -73,7 +73,7 @@ function startClientServer() {
                     const command = json.command;
                     if ((0, flowControl_1.shouldFlowStart)()) {
                         console.log("Flow should start");
-                        (0, ws_robot_functions_1.wsRun)(ws, protocol_id, command);
+                        (0, REST_robot_functions_1.wsRun)(ws, protocol_id, command);
                         console.log("CONTROL BEGINS");
                         (0, flowControl_1.startControlFlow)();
                     }

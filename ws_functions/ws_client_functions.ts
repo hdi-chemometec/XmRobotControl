@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { wsGetServer, wsGetRobot, wsGetProtocols, wsPostRun, wsRun, wsRunStatus } from "./ws_robot_functions";
+import { wsGetServer, wsGetRobot, wsGetProtocols, wsPostRun, wsRun, wsRunStatus } from "./REST_robot_functions";
 import { fromServerSendMessageToInstrument } from './ws_instrument_functions';
 import  { shouldFlowStart, startControlFlow } from '../helper_functions/flowControl';
 

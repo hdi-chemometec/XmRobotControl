@@ -1,9 +1,9 @@
 import { FlowInstrumentStates, FlowRobotStates } from "../Types/flowstates";
 import { InstrumentStates } from "../Types/instrumentStates";
 import { RobotStates } from "../Types/runState";
-import { getInstrumentState, getRobotState } from "../index";
+import { getInstrumentState, getRobotState } from "../startUp";
 import { fromServerSendMessageToInstrument } from "../ws_functions/ws_instrument_functions";
-import { sendCommand } from "../ws_functions/ws_robot_functions";
+import { sendCommand } from "../ws_functions/REST_robot_functions";
 
 let flowInstrumentState = FlowInstrumentStates.NOT_INITIALIZED;
 const getFlowInstrumentState = () => {

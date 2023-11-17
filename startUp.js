@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.waitForServerConnection = exports.waitForRobotConnection = exports.getInstrumentState = exports.setInstrumentState = exports.getRobotState = exports.setRobotState = void 0;
 const helperFunctions_1 = require("./helper_functions/helperFunctions");
-const ws_robot_functions_1 = require("./ws_functions/ws_robot_functions");
+const REST_robot_functions_1 = require("./ws_functions/REST_robot_functions");
 const ws_instrument_functions_1 = require("./ws_functions/ws_instrument_functions");
 const ws_client_functions_1 = require("./ws_functions/ws_client_functions");
 const runState_1 = require("./Types/runState");
@@ -53,7 +53,7 @@ function waitForRobotConnection() {
 exports.waitForRobotConnection = waitForRobotConnection;
 function waitForServerConnection() {
     setTimeout(function () {
-        const serverConnection = (0, ws_robot_functions_1.getServer)();
+        const serverConnection = (0, REST_robot_functions_1.getServer)();
         console.log("Python server connection state: ", serverConnection);
         if (!serverConnection) {
             console.log("Python server not connected");

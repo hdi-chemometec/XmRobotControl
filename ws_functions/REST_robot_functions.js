@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.wsRunStatus = exports.sendCommand = exports.wsRun = exports.wsPostRun = exports.wsGetProtocols = exports.wsGetRobot = exports.wsGetServer = exports.getServer = exports.informPythonServerIpUpdate = void 0;
 const axios_1 = __importDefault(require("axios")); // library used for making HTTP requests to servers. E.g. the flask server
-const index_1 = require("../index");
+const startUp_1 = require("../startUp");
 const runState_1 = require("../Types/runState");
 const headers = {
     'Content-Type': 'application/json'
@@ -186,7 +186,7 @@ function wsRunStatus(ws) {
             const response = yield axios_1.default.get(pythonServer + "/runStatus");
             if (response.status == 200) {
                 const wsResponse = { type: "RUN_STATUS", content: response.data };
-                (0, index_1.setRobotState)(response.data);
+                (0, startUp_1.setRobotState)(response.data);
                 ws.send(JSON.stringify(wsResponse));
             }
         }
