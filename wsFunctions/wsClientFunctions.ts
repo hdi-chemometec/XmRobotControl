@@ -17,11 +17,11 @@ function setWsClient(state: boolean) {
 }
 
 export function startClientServer(){
-  const Client_WS_PORT = 8084;
-  const wsServer = new WebSocket.Server({ port: Client_WS_PORT });
+  const CLIENT_WS_PORT = 8084;
+  const wsServer = new WebSocket.Server({ port: CLIENT_WS_PORT });
 
   wsServer.on('connection', (ws: WebSocket) => {
-      console.log(`New client connected on PORT ${Client_WS_PORT}`);
+      console.log(`New client connected on PORT ${CLIENT_WS_PORT}`);
       setWsClient(true);
       connectedClients.add(ws);
     
@@ -63,8 +63,8 @@ export function startClientServer(){
           break;
         }
         case "RUN": {
-          const protocol_id = json.protocolId;
-          wsPostRun(ws, protocol_id);
+          const protocolId = json.protocolId;
+          wsPostRun(ws, protocolId);
           break;
         }
         case "RUN_STATUS": {
@@ -72,11 +72,11 @@ export function startClientServer(){
           break;
         }
         case "COMMAND": {
-          const protocol_id = json.protocolId;
+          const protocolId = json.protocolId;
           const command = json.command;
           if(shouldFlowStart()) {
             console.log("Flow should start");
-            wsRun(ws, protocol_id, command);
+            wsRun(ws, protocolId, command);
             console.log("CONTROL BEGINS");
             startControlFlow();
           } else {

@@ -20,10 +20,10 @@ function setWsClient(state) {
     wsClient = state;
 }
 function startClientServer() {
-    const Client_WS_PORT = 8084;
-    const wsServer = new ws_1.default.Server({ port: Client_WS_PORT });
+    const CLIENT_WS_PORT = 8084;
+    const wsServer = new ws_1.default.Server({ port: CLIENT_WS_PORT });
     wsServer.on('connection', (ws) => {
-        console.log(`New client connected on PORT ${Client_WS_PORT}`);
+        console.log(`New client connected on PORT ${CLIENT_WS_PORT}`);
         setWsClient(true);
         connectedClients.add(ws);
         ws.on('message', (message) => {
@@ -61,8 +61,8 @@ function startClientServer() {
                     break;
                 }
                 case "RUN": {
-                    const protocol_id = json.protocolId;
-                    (0, RESTRobotFunctions_1.wsPostRun)(ws, protocol_id);
+                    const protocolId = json.protocolId;
+                    (0, RESTRobotFunctions_1.wsPostRun)(ws, protocolId);
                     break;
                 }
                 case "RUN_STATUS": {
@@ -70,11 +70,11 @@ function startClientServer() {
                     break;
                 }
                 case "COMMAND": {
-                    const protocol_id = json.protocolId;
+                    const protocolId = json.protocolId;
                     const command = json.command;
                     if ((0, flowControl_1.shouldFlowStart)()) {
                         console.log("Flow should start");
-                        (0, RESTRobotFunctions_1.wsRun)(ws, protocol_id, command);
+                        (0, RESTRobotFunctions_1.wsRun)(ws, protocolId, command);
                         console.log("CONTROL BEGINS");
                         (0, flowControl_1.startControlFlow)();
                     }
