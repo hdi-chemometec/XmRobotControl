@@ -1,5 +1,5 @@
 // main.js / main.ts (the filename doesn't matter)
-import { startNodeServer } from "./helper_functions/helperFunctions";
+import { startNodeServer } from "./helperFunctions/helperFunctions";
 import { waitForRobotConnection } from "./startUp";
 
 async function main() {

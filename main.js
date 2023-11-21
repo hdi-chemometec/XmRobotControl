@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // main.js / main.ts (the filename doesn't matter)
-const helperFunctions_1 = require("./helper_functions/helperFunctions");
+const helperFunctions_1 = require("./helperFunctions/helperFunctions");
 const startUp_1 = require("./startUp");
 function main() {
     return __awaiter(this, void 0, void 0, function* () {

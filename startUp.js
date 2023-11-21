@@ -10,10 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.reconnectToClient = exports.reconnectToInstrument = exports.waitForRobotConnection = exports.getInstrumentState = exports.setInstrumentState = exports.getRobotState = exports.setRobotState = void 0;
-const helperFunctions_1 = require("./helper_functions/helperFunctions");
-const REST_robot_functions_1 = require("./ws_functions/REST_robot_functions");
-const ws_instrument_functions_1 = require("./ws_functions/ws_instrument_functions");
-const ws_client_functions_1 = require("./ws_functions/ws_client_functions");
+const helperFunctions_1 = require("./helperFunctions/helperFunctions");
+const RESTRobotFunctions_1 = require("./wsFunctions/RESTRobotFunctions");
+const wsInstrumentFunctions_1 = require("./wsFunctions/wsInstrumentFunctions");
+const wsClientFunctions_1 = require("./wsFunctions/wsClientFunctions");
 const runState_1 = require("./Types/runState");
 const instrumentStates_1 = require("./Types/instrumentStates");
 let robotState = runState_1.RobotStates.UNKNOWN;
@@ -51,7 +51,7 @@ function waitForRobotConnection() {
 exports.waitForRobotConnection = waitForRobotConnection;
 function waitForServerConnection() {
     return __awaiter(this, void 0, void 0, function* () {
-        const serverConnection = yield (0, REST_robot_functions_1.getServer)();
+        const serverConnection = yield (0, RESTRobotFunctions_1.getServer)();
         setTimeout(function () {
             console.log("Python server connection state: ", serverConnection);
             if (!serverConnection) {
@@ -60,7 +60,7 @@ function waitForServerConnection() {
             }
             else {
                 console.log("Python server is connected");
-                (0, ws_instrument_functions_1.startInstrumentConnection)();
+                (0, wsInstrumentFunctions_1.startInstrumentConnection)();
                 waitForInstrumentConnection();
             }
         }, 10000);
@@ -68,23 +68,23 @@ function waitForServerConnection() {
 }
 function waitForInstrumentConnection() {
     setTimeout(function () {
-        const instrumentConnection = (0, ws_instrument_functions_1.getInstrumentConnection)();
+        const instrumentConnection = (0, wsInstrumentFunctions_1.getInstrumentConnection)();
         console.log("Instrument connection state: ", instrumentConnection);
         if (!instrumentConnection) {
             console.log("Instrument is not connected");
-            (0, ws_instrument_functions_1.startInstrumentConnection)();
+            (0, wsInstrumentFunctions_1.startInstrumentConnection)();
             waitForInstrumentConnection();
         }
         else {
             console.log("Instrument is connected");
-            (0, ws_client_functions_1.startClientServer)();
+            (0, wsClientFunctions_1.startClientServer)();
             waitForClientConnection();
         }
     }, 10000);
 }
 function waitForClientConnection() {
     setTimeout(function () {
-        const clientConnection = (0, ws_client_functions_1.getWsClient)();
+        const clientConnection = (0, wsClientFunctions_1.getWsClient)();
         console.log("Client connection state: ", clientConnection);
         if (!clientConnection) {
             console.log("Client is not connected");
@@ -97,11 +97,11 @@ function waitForClientConnection() {
 }
 function reconnectToInstrument() {
     setTimeout(function () {
-        const instrumentConnection = (0, ws_instrument_functions_1.getInstrumentConnection)();
+        const instrumentConnection = (0, wsInstrumentFunctions_1.getInstrumentConnection)();
         console.log("Instrument connection state: ", instrumentConnection);
         if (!instrumentConnection) {
             console.log("Instrument is not connected");
-            (0, ws_instrument_functions_1.startInstrumentConnection)(); //server is client so the instance must be restarted
+            (0, wsInstrumentFunctions_1.startInstrumentConnection)(); //server is client so the instance must be restarted
             reconnectToInstrument();
         }
         else {
@@ -112,7 +112,7 @@ function reconnectToInstrument() {
 exports.reconnectToInstrument = reconnectToInstrument;
 function reconnectToClient() {
     setTimeout(function () {
-        const clientConnection = (0, ws_client_functions_1.getWsClient)();
+        const clientConnection = (0, wsClientFunctions_1.getWsClient)();
         console.log("Client connection state: ", clientConnection);
         if (!clientConnection) {
             console.log("Client is not connected");
