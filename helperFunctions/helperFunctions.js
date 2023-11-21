@@ -39,7 +39,7 @@ robot.on(discovery_client_1.SERVICE_EVENT, (service) => {
         if (service.serverOk) {
             console.log("Ip address found: ", service.ip);
             if (service.ip != null) {
-                set_ip(service.ip);
+                setIp(service.ip);
                 (0, RESTRobotFunctions_1.informPythonServerIpUpdate)();
             }
         }
@@ -54,10 +54,7 @@ robot.on(discovery_client_1.SERVICE_REMOVED_EVENT, (service) => {
         (0, RESTRobotFunctions_1.informPythonServerIpUpdate)();
     });
 });
-function get_ip() {
-    return robotIP;
-}
-function set_ip(ip) {
+function setIp(ip) {
     robotIP = ip;
 }
 function getIp() {
@@ -74,12 +71,12 @@ function startNodeServer() {
     const PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 4000;
     const app = (0, express_1.default)();
     app.get("/", (req, res) => {
-        console.log("The current Ip Address is: ", get_ip());
+        console.log("The current Ip Address is: ", getIp());
         return res.send("Hello from Node server!");
     });
     //there should be made a call to the python server whenever the robot is connected
     app.get("/connect", (req, res) => {
-        const tempIp = get_ip();
+        const tempIp = getIp();
         console.log("The current Ip Address is: ", tempIp);
         return res.status(200).json({ data: tempIp });
     });
