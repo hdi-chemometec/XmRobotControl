@@ -98,6 +98,7 @@ const handleRobotState = (robotState: FlowRobotStates) => {
             break;
         }
         default: {
+            console.log("Instrument State: Default")
             break;
         }
     }
@@ -169,7 +170,7 @@ const handleInstrumentState = (instrumentState: FlowInstrumentStates) => {
             return;
         }
         default: {
-            console.log("Default");
+            console.log("Robot State: Default");
             break;
         }
     }

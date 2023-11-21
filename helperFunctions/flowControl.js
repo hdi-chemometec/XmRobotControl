@@ -101,6 +101,7 @@ const handleRobotState = (robotState) => {
             break;
         }
         default: {
+            console.log("Instrument State: Default");
             break;
         }
     }
@@ -173,7 +174,7 @@ const handleInstrumentState = (instrumentState) => {
             return;
         }
         default: {
-            console.log("Default");
+            console.log("Robot State: Default");
             break;
         }
     }
