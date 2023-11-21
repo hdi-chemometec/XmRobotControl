@@ -16,6 +16,14 @@ const wsInstrumentFunctions_1 = require("./wsFunctions/wsInstrumentFunctions");
 const wsClientFunctions_1 = require("./wsFunctions/wsClientFunctions");
 const runState_1 = require("./Types/runState");
 const instrumentStates_1 = require("./Types/instrumentStates");
+/**
+ * robotState
+ * @description variable describing the current state of the robot
+ * @type {RobotStates}
+ * @default RobotStates.UNKNOWN
+ * setRobotState: sets the robotState variable
+ * getRobotState: returns the robotState variable
+ */
 let robotState = runState_1.RobotStates.UNKNOWN;
 const setRobotState = (newStatus) => {
     robotState = newStatus;
@@ -25,6 +33,14 @@ const getRobotState = () => {
     return robotState;
 };
 exports.getRobotState = getRobotState;
+/**
+ * instrumentState
+ * @description variable describing the current state of the instrument
+ * @type {InstrumentStates}
+ * @default InstrumentStates.NO_STATE
+ * setInstrumentState: sets the instrumentState variable
+ * getInstrumentState: returns the instrumentState variable
+ */
 let instrumentState = instrumentStates_1.InstrumentStates.NO_STATE;
 const setInstrumentState = (newStatus) => {
     instrumentState = newStatus;
@@ -34,6 +50,12 @@ const getInstrumentState = () => {
     return instrumentState;
 };
 exports.getInstrumentState = getInstrumentState;
+/**
+ * waitForRobotConnection
+ * @description function that waits for the robot to connect
+ * The function is called in the startUp.ts file
+ * The function is called recursively every 10 seconds until the robot's IP is found
+ */
 function waitForRobotConnection() {
     setTimeout(function () {
         const ipConnection = (0, helperFunctions_1.getIp)();
@@ -49,6 +71,11 @@ function waitForRobotConnection() {
     }, 10000);
 }
 exports.waitForRobotConnection = waitForRobotConnection;
+/**
+ * waitForServerConnection
+ * @description function that waits for the python server to connect
+ * The function is called recursively every 10 seconds until the python server is connected
+ */
 function waitForServerConnection() {
     return __awaiter(this, void 0, void 0, function* () {
         const serverConnection = yield (0, RESTRobotFunctions_1.getServer)();
@@ -66,6 +93,11 @@ function waitForServerConnection() {
         }, 10000);
     });
 }
+/**
+ * waitForInstrumentConnection
+ * @description function that waits for the instrument to connect
+ * The function is called recursively every 10 seconds until the instrument is connected
+ */
 function waitForInstrumentConnection() {
     setTimeout(function () {
         const instrumentConnection = (0, wsInstrumentFunctions_1.getInstrumentConnection)();
@@ -82,6 +114,11 @@ function waitForInstrumentConnection() {
         }
     }, 10000);
 }
+/**
+ * waitForClientConnection
+ * @description function that waits for the client to connect
+ * The function is called recursively every 3 seconds until the client is connected
+ */
 function waitForClientConnection() {
     setTimeout(function () {
         const clientConnection = (0, wsClientFunctions_1.getWsClient)();
@@ -95,6 +132,11 @@ function waitForClientConnection() {
         }
     }, 3000);
 }
+/**
+ * reconnectToRobot
+ * @description function that reconnects to the instrument, if the instrument is disconnected
+ * The function is called recursively every 3 seconds until the instrument is reconnected
+ */
 function reconnectToInstrument() {
     setTimeout(function () {
         const instrumentConnection = (0, wsInstrumentFunctions_1.getInstrumentConnection)();
@@ -110,6 +152,11 @@ function reconnectToInstrument() {
     }, 3000);
 }
 exports.reconnectToInstrument = reconnectToInstrument;
+/**
+ * reconnectToClient
+ * @description function that reconnects to the client, if the client is disconnected
+ * The function is called recursively every 3 seconds until the client is reconnected
+ */
 function reconnectToClient() {
     setTimeout(function () {
         const clientConnection = (0, wsClientFunctions_1.getWsClient)();

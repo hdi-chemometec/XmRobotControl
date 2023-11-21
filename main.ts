@@ -1,7 +1,10 @@
-// main.js / main.ts (the filename doesn't matter)
 import { startNodeServer } from "./helperFunctions/helperFunctions";
 import { waitForRobotConnection } from "./startUp";
 
+/**
+ * Main function
+ * Starts the node server and starts the startup process
+ */
 async function main() {
     console.log("Hello world");
     startNodeServer();
