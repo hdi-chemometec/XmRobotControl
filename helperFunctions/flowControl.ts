@@ -5,6 +5,14 @@ import { getInstrumentState, getRobotState } from "../startUp";
 import { fromServerSendMessageToInstrument } from "../wsFunctions/wsInstrumentFunctions";
 import { sendCommand } from "../wsFunctions/RESTRobotFunctions";
 
+/**
+ * flowInstrumentState
+ * @description variable describing the current flow state of the instrument
+ * @type {FlowInstrumentStates}
+ * @default FlowInstrumentStates.NOT_INITIALIZED
+ * getFlowInstrumentState: returns the flowInstrumentState variable
+ * setFlowInstrumentState: sets the flowInstrumentState variable
+ */
 let flowInstrumentState = FlowInstrumentStates.NOT_INITIALIZED;
 const getFlowInstrumentState = () => {
     return flowInstrumentState;
@@ -13,8 +21,15 @@ const setFlowInstrumentState = (newState: FlowInstrumentStates) => {
   flowInstrumentState = newState;
 }
 
+/**
+ * flowRobotState
+ * @description variable describing the current flow state of the robot
+ * @type {FlowRobotStates}
+ * @default FlowRobotStates.START
+ * getFlowRobotState: returns the flowRobotState variable
+ * setFlowRobotState: sets the flowRobotState variable
+ */
 let flowRobotState = FlowRobotStates.START;
-
 const getFlowRobotState = () => {
     return flowRobotState;
 }
@@ -22,6 +37,11 @@ const setFlowRobotState = (newState: FlowRobotStates) => {
   flowRobotState = newState;
 }
 
+/**
+ * shouldFlowStart
+ * @returns {boolean} true if the flow control should start
+ * The flow should only start if the is idle and the robot is either idle or unknown state
+ */
 export const shouldFlowStart = (): boolean => {
     const instrument = getInstrumentState();
     const robot = getRobotState();
@@ -32,6 +52,12 @@ export const shouldFlowStart = (): boolean => {
     }
 }
 
+/**
+ * startControlFlow
+ * @description function that starts and controls the flow of the robot and instrument
+ * The function is sequentially called every 2 seconds until the flow is done
+ * The flow is done when the robot is in the finishing flow state and the instrument is in the done flow state
+ */
 export function startControlFlow() {
     setTimeout(function() {
         const flowRobot = getFlowRobotState();
@@ -49,6 +75,11 @@ export function startControlFlow() {
     console.log("\n");
 }
 
+/**
+ * handleRobotState
+ * @param robotState - current flow state of the robot
+ * @description function that handles the flow state of the robot
+ */
 const handleRobotState = (robotState: FlowRobotStates) => {
     const robot = getRobotState();
     if(robot == RobotStates.FINISHING && flowRobotState != FlowRobotStates.FINISHING) { //check if robot is finishing and only set if it is not already set
@@ -104,6 +135,11 @@ const handleRobotState = (robotState: FlowRobotStates) => {
     }
 }
 
+/**
+ * handleInstrumentState
+ * @param instrumentState - current flow state of the instrument
+ * @description function that handles the flow state of the instrument
+ */
 const handleInstrumentState = (instrumentState: FlowInstrumentStates) => {
     switch(instrumentState) {
         case FlowInstrumentStates.NOT_INITIALIZED: {

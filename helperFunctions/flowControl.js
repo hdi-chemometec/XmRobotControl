@@ -7,6 +7,14 @@ const runState_1 = require("../Types/runState");
 const startUp_1 = require("../startUp");
 const wsInstrumentFunctions_1 = require("../wsFunctions/wsInstrumentFunctions");
 const RESTRobotFunctions_1 = require("../wsFunctions/RESTRobotFunctions");
+/**
+ * flowInstrumentState
+ * @description variable describing the current flow state of the instrument
+ * @type {FlowInstrumentStates}
+ * @default FlowInstrumentStates.NOT_INITIALIZED
+ * getFlowInstrumentState: returns the flowInstrumentState variable
+ * setFlowInstrumentState: sets the flowInstrumentState variable
+ */
 let flowInstrumentState = flowStates_1.FlowInstrumentStates.NOT_INITIALIZED;
 const getFlowInstrumentState = () => {
     return flowInstrumentState;
@@ -14,6 +22,14 @@ const getFlowInstrumentState = () => {
 const setFlowInstrumentState = (newState) => {
     flowInstrumentState = newState;
 };
+/**
+ * flowRobotState
+ * @description variable describing the current flow state of the robot
+ * @type {FlowRobotStates}
+ * @default FlowRobotStates.START
+ * getFlowRobotState: returns the flowRobotState variable
+ * setFlowRobotState: sets the flowRobotState variable
+ */
 let flowRobotState = flowStates_1.FlowRobotStates.START;
 const getFlowRobotState = () => {
     return flowRobotState;
@@ -21,6 +37,11 @@ const getFlowRobotState = () => {
 const setFlowRobotState = (newState) => {
     flowRobotState = newState;
 };
+/**
+ * shouldFlowStart
+ * @returns {boolean} true if the flow control should start
+ * The flow should only start if the is idle and the robot is either idle or unknown state
+ */
 const shouldFlowStart = () => {
     const instrument = (0, startUp_1.getInstrumentState)();
     const robot = (0, startUp_1.getRobotState)();
@@ -32,6 +53,12 @@ const shouldFlowStart = () => {
     }
 };
 exports.shouldFlowStart = shouldFlowStart;
+/**
+ * startControlFlow
+ * @description function that starts and controls the flow of the robot and instrument
+ * The function is sequentially called every 2 seconds until the flow is done
+ * The flow is done when the robot is in the finishing flow state and the instrument is in the done flow state
+ */
 function startControlFlow() {
     setTimeout(function () {
         const flowRobot = getFlowRobotState();
@@ -50,6 +77,11 @@ function startControlFlow() {
     console.log("\n");
 }
 exports.startControlFlow = startControlFlow;
+/**
+ * handleRobotState
+ * @param robotState - current flow state of the robot
+ * @description function that handles the flow state of the robot
+ */
 const handleRobotState = (robotState) => {
     const robot = (0, startUp_1.getRobotState)();
     if (robot == runState_1.RobotStates.FINISHING && flowRobotState != flowStates_1.FlowRobotStates.FINISHING) { //check if robot is finishing and only set if it is not already set
@@ -106,6 +138,11 @@ const handleRobotState = (robotState) => {
         }
     }
 };
+/**
+ * handleInstrumentState
+ * @param instrumentState - current flow state of the instrument
+ * @description function that handles the flow state of the instrument
+ */
 const handleInstrumentState = (instrumentState) => {
     switch (instrumentState) {
         case flowStates_1.FlowInstrumentStates.NOT_INITIALIZED: {

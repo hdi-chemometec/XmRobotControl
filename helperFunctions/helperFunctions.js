@@ -30,8 +30,13 @@ exports.startNodeServer = exports.getIp = void 0;
 const RESTRobotFunctions_1 = require("../wsFunctions/RESTRobotFunctions");
 const express_1 = __importDefault(require("express")); // is a web app framework used for building APIs.
 const discovery_client_1 = __importStar(require("@opentrons/discovery-client"));
+/**
+ * robot
+ * @description a new instance of the DiscoveryClient class
+ * @type {DiscoveryClient}
+ * It is used to handle events related to the robot connection to fetch the IP address of the robot
+ */
 const robot = new discovery_client_1.default();
-let robotIP = "";
 // functions used for getting the robot IP address:
 robot.start();
 robot.on(discovery_client_1.SERVICE_EVENT, (service) => {
@@ -54,9 +59,15 @@ robot.on(discovery_client_1.SERVICE_REMOVED_EVENT, (service) => {
         (0, RESTRobotFunctions_1.informPythonServerIpUpdate)();
     });
 });
-function setIp(ip) {
-    robotIP = ip;
-}
+/**
+ * robotIP
+ * @description variable used to store the robot's IP address
+ * @type {string}
+ * @default ""
+ * getIp: returns the robotIP variable
+ * setIp: sets the robotIP variable
+ */
+let robotIP = "";
 function getIp() {
     if (robotIP != "") {
         return robotIP;
@@ -66,6 +77,13 @@ function getIp() {
     }
 }
 exports.getIp = getIp;
+function setIp(ip) {
+    robotIP = ip;
+}
+/**
+ * startNodeServer
+ * @description function that starts the node server on port 4000
+ */
 function startNodeServer() {
     var _a;
     const PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 4000;
@@ -77,7 +95,7 @@ function startNodeServer() {
     //there should be made a call to the python server whenever the robot is connected
     app.get("/connect", (req, res) => {
         const tempIp = getIp();
-        console.log("The current Ip Address is: ", tempIp);
+        console.log("The current IP Address is: ", tempIp);
         return res.status(200).json({ data: tempIp });
     });
     app.listen(PORT, () => {

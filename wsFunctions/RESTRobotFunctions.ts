@@ -3,12 +3,25 @@ import WebSocket from 'ws';
 import { setRobotState } from "../startUp";
 import { RobotStates } from "../Types/runState";
 
+/**
+ * headers
+ * @description variable used to store the headers for the HTTP requests
+ */
 const headers = {
   'Content-Type': 'application/json'
 }
 
+/**
+ * PYTHON_SERVER
+ * @description variable used to store the URL of the python server
+ */
 const PYTHON_SERVER = "http://127.0.0.1:5000";
 
+/**
+ * informPythonServerIpUpdate
+ * @description function that invokes the python server to check for the robot's IP address
+ * This function is used when an IP address is found or removed
+ */
 export async function informPythonServerIpUpdate() {
   try {
     const response = await axios.get(PYTHON_SERVER + "/connect");
@@ -20,6 +33,12 @@ export async function informPythonServerIpUpdate() {
   }
 }
 
+/**
+ * getServer
+ * @returns {boolean} connection state of the python server
+ * @description function that returns the connection state of the python server
+ * This function is used when the node server checks the connection state of the python server
+ */
 export const getServer = async (): Promise<boolean> => {
   try {
     const response = await axios.get(PYTHON_SERVER + "/");
@@ -36,6 +55,12 @@ export const getServer = async (): Promise<boolean> => {
   }
 }
 
+/**
+ * wsGetServer
+ * @param ws - websocket instance
+ * This function gets the python connection state and sends it's state as a response to the ws client
+ * if it fails to get the connection state, it sends the request back to the ws client
+ */
 export async function wsGetServer(ws: WebSocket) {
   try {
     const response = await axios.get(PYTHON_SERVER + "/");
@@ -52,6 +77,12 @@ export async function wsGetServer(ws: WebSocket) {
   }
 }
 
+/**
+ * wsGetRobot
+ * @param ws - websocket instance
+ * This function gets the robot connection state and sends it's state as a response to the ws client
+ * if it fails to get the connection state, it sends the request back to the ws client
+ */
 export async function wsGetRobot(ws: WebSocket): Promise<boolean> {
   try {
     const response = await axios.get(PYTHON_SERVER + "/connect");
@@ -71,6 +102,12 @@ export async function wsGetRobot(ws: WebSocket): Promise<boolean> {
   }
 }
 
+/**
+ * 
+ * @param ws - websocket instance
+ * This function gets the robot protocol list and sends it as a response to the ws client
+ * if it fails to get the protocol list, it sends the request back to the ws client
+ */
 export async function wsGetProtocols(ws: WebSocket) {
   try {
     const response = await axios.get(PYTHON_SERVER + "/protocols");
@@ -87,6 +124,13 @@ export async function wsGetProtocols(ws: WebSocket) {
   }
 }
 
+/**
+ * wsPostRun
+ * @param ws - websocket instance
+ * @param protocol_id - protocol id of the protocol to be run
+ * This function posts a run request to the python server and sends the response to the ws client
+ * if it fails to post the run request, it sends the request back to the ws client
+ */
 export async function wsPostRun(ws: WebSocket, protocol_id: string) {
   try {
     const body = {"protocol_id": protocol_id}
@@ -103,7 +147,15 @@ export async function wsPostRun(ws: WebSocket, protocol_id: string) {
     console.error("wsPostRun: Error, Axios error occurred");    
   }
 }
-  
+
+/**
+ * wsRun
+ * @param ws - websocket instance
+ * @param protocol_id - protocol id of the protocol to be run
+ * @param command - command to be sent to the robot
+ * This function posts a command to the python server and sends the response to the ws client
+ * if it fails to post the command, it sends the request back to the ws client
+ */
 export async function wsRun(ws: WebSocket, protocol_id: string, command: string) {
   try {
     const body = {"protocol_id": protocol_id, "command": command}
@@ -122,6 +174,12 @@ export async function wsRun(ws: WebSocket, protocol_id: string, command: string)
   }
 }
 
+/**
+ * sendCommand
+ * @param command - command to be sent to the robot
+ * This function posts a command to the python server
+ * if it fails to post the command, it sends the request back to the ws client
+ */
 export async function sendCommand( command: string) {
   try {
     const body = {"command": command}
@@ -140,6 +198,12 @@ export async function sendCommand( command: string) {
   }
 }
 
+/**
+ * wsRunStatus
+ * @param ws - websocket instance
+ * This function gets the robot run status and sends it as a response to the ws client
+ * if it fails to get the run status, it returns the state UNKNOWN
+ */
 export async function wsRunStatus(ws: WebSocket) {
   try {
     const response = await axios.get(PYTHON_SERVER + "/runStatus");

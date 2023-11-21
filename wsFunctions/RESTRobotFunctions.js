@@ -16,10 +16,23 @@ exports.wsRunStatus = exports.sendCommand = exports.wsRun = exports.wsPostRun = 
 const axios_1 = __importDefault(require("axios")); // library used for making HTTP requests to servers. E.g. the flask server
 const startUp_1 = require("../startUp");
 const runState_1 = require("../Types/runState");
+/**
+ * headers
+ * @description variable used to store the headers for the HTTP requests
+ */
 const headers = {
     'Content-Type': 'application/json'
 };
+/**
+ * PYTHON_SERVER
+ * @description variable used to store the URL of the python server
+ */
 const PYTHON_SERVER = "http://127.0.0.1:5000";
+/**
+ * informPythonServerIpUpdate
+ * @description function that invokes the python server to check for the robot's IP address
+ * This function is used when an IP address is found or removed
+ */
 function informPythonServerIpUpdate() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -34,6 +47,12 @@ function informPythonServerIpUpdate() {
     });
 }
 exports.informPythonServerIpUpdate = informPythonServerIpUpdate;
+/**
+ * getServer
+ * @returns {boolean} connection state of the python server
+ * @description function that returns the connection state of the python server
+ * This function is used when the node server checks the connection state of the python server
+ */
 const getServer = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield axios_1.default.get(PYTHON_SERVER + "/");
@@ -52,6 +71,12 @@ const getServer = () => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getServer = getServer;
+/**
+ * wsGetServer
+ * @param ws - websocket instance
+ * This function gets the python connection state and sends it's state as a response to the ws client
+ * if it fails to get the connection state, it sends the request back to the ws client
+ */
 function wsGetServer(ws) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -72,6 +97,12 @@ function wsGetServer(ws) {
     });
 }
 exports.wsGetServer = wsGetServer;
+/**
+ * wsGetRobot
+ * @param ws - websocket instance
+ * This function gets the robot connection state and sends it's state as a response to the ws client
+ * if it fails to get the connection state, it sends the request back to the ws client
+ */
 function wsGetRobot(ws) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -95,6 +126,12 @@ function wsGetRobot(ws) {
     });
 }
 exports.wsGetRobot = wsGetRobot;
+/**
+ *
+ * @param ws - websocket instance
+ * This function gets the robot protocol list and sends it as a response to the ws client
+ * if it fails to get the protocol list, it sends the request back to the ws client
+ */
 function wsGetProtocols(ws) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -115,6 +152,13 @@ function wsGetProtocols(ws) {
     });
 }
 exports.wsGetProtocols = wsGetProtocols;
+/**
+ * wsPostRun
+ * @param ws - websocket instance
+ * @param protocol_id - protocol id of the protocol to be run
+ * This function posts a run request to the python server and sends the response to the ws client
+ * if it fails to post the run request, it sends the request back to the ws client
+ */
 function wsPostRun(ws, protocol_id) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -136,6 +180,14 @@ function wsPostRun(ws, protocol_id) {
     });
 }
 exports.wsPostRun = wsPostRun;
+/**
+ * wsRun
+ * @param ws - websocket instance
+ * @param protocol_id - protocol id of the protocol to be run
+ * @param command - command to be sent to the robot
+ * This function posts a command to the python server and sends the response to the ws client
+ * if it fails to post the command, it sends the request back to the ws client
+ */
 function wsRun(ws, protocol_id, command) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -158,6 +210,12 @@ function wsRun(ws, protocol_id, command) {
     });
 }
 exports.wsRun = wsRun;
+/**
+ * sendCommand
+ * @param command - command to be sent to the robot
+ * This function posts a command to the python server
+ * if it fails to post the command, it sends the request back to the ws client
+ */
 function sendCommand(command) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -180,6 +238,12 @@ function sendCommand(command) {
     });
 }
 exports.sendCommand = sendCommand;
+/**
+ * wsRunStatus
+ * @param ws - websocket instance
+ * This function gets the robot run status and sends it as a response to the ws client
+ * if it fails to get the run status, it returns the state UNKNOWN
+ */
 function wsRunStatus(ws) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
