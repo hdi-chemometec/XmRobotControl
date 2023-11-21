@@ -19,11 +19,11 @@ const runState_1 = require("../Types/runState");
 const headers = {
     'Content-Type': 'application/json'
 };
-const pythonServer = "http://127.0.0.1:5000";
+const PYTHON_SERVER = "http://127.0.0.1:5000";
 function informPythonServerIpUpdate() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const response = yield axios_1.default.get(pythonServer + "/connect");
+            const response = yield axios_1.default.get(PYTHON_SERVER + "/connect");
             if (response.status == 200) {
                 console.log("Invoked python server to check if robot is connected");
             }
@@ -36,7 +36,7 @@ function informPythonServerIpUpdate() {
 exports.informPythonServerIpUpdate = informPythonServerIpUpdate;
 const getServer = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield axios_1.default.get(pythonServer + "/");
+        const response = yield axios_1.default.get(PYTHON_SERVER + "/");
         if (response.status == 200) {
             console.log(`Python server is running ${response.status}`);
             return true;
@@ -55,7 +55,7 @@ exports.getServer = getServer;
 function wsGetServer(ws) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const response = yield axios_1.default.get(pythonServer + "/");
+            const response = yield axios_1.default.get(PYTHON_SERVER + "/");
             if (response.status == 200) {
                 const wsResponse = { type: "SERVER", content: response.data };
                 ws.send(JSON.stringify(wsResponse));
@@ -75,7 +75,7 @@ exports.wsGetServer = wsGetServer;
 function wsGetRobot(ws) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const response = yield axios_1.default.get(pythonServer + "/connect");
+            const response = yield axios_1.default.get(PYTHON_SERVER + "/connect");
             if (response.status == 200) {
                 const wsResponse = { type: "ROBOT", content: response.data };
                 ws.send(JSON.stringify(wsResponse));
@@ -98,7 +98,7 @@ exports.wsGetRobot = wsGetRobot;
 function wsGetProtocols(ws) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const response = yield axios_1.default.get(pythonServer + "/protocols");
+            const response = yield axios_1.default.get(PYTHON_SERVER + "/protocols");
             if (response.status == 200) {
                 const wsResponse = { type: "PROTOCOLS", content: response.data };
                 ws.send(JSON.stringify(wsResponse));
@@ -119,7 +119,7 @@ function wsPostRun(ws, protocol_id) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = { "protocol_id": protocol_id };
-            const response = yield axios_1.default.post(pythonServer + "/runs", body, { headers: headers });
+            const response = yield axios_1.default.post(PYTHON_SERVER + "/runs", body, { headers: headers });
             if (response.status == 201) {
                 const wsResponse = { type: "RUN", content: response.data };
                 ws.send(JSON.stringify(wsResponse));
@@ -140,7 +140,7 @@ function wsRun(ws, protocol_id, command) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = { "protocol_id": protocol_id, "command": command };
-            const response = yield axios_1.default.post(pythonServer + "/command", body, { headers: headers });
+            const response = yield axios_1.default.post(PYTHON_SERVER + "/command", body, { headers: headers });
             if (response.status == 201) {
                 console.log("Command sent to robot");
                 const wsResponse = { type: "COMMAND", content: response.data };
@@ -162,7 +162,7 @@ function sendCommand(command) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = { "command": command };
-            const response = yield axios_1.default.post(pythonServer + "/command", body, { headers: headers });
+            const response = yield axios_1.default.post(PYTHON_SERVER + "/command", body, { headers: headers });
             if (response.status == 201) {
                 console.log("Command sent to robot");
                 const wsResponse = { type: "COMMAND", content: response.data };
@@ -183,7 +183,7 @@ exports.sendCommand = sendCommand;
 function wsRunStatus(ws) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const response = yield axios_1.default.get(pythonServer + "/runStatus");
+            const response = yield axios_1.default.get(PYTHON_SERVER + "/runStatus");
             if (response.status == 200) {
                 const wsResponse = { type: "RUN_STATUS", content: response.data };
                 (0, startUp_1.setRobotState)(response.data);

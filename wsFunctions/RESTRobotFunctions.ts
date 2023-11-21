@@ -7,11 +7,11 @@ const headers = {
   'Content-Type': 'application/json'
 }
 
-const pythonServer = "http://127.0.0.1:5000";
+const PYTHON_SERVER = "http://127.0.0.1:5000";
 
 export async function informPythonServerIpUpdate() {
   try {
-    const response = await axios.get(pythonServer + "/connect");
+    const response = await axios.get(PYTHON_SERVER + "/connect");
     if(response.status == 200) {
       console.log("Invoked python server to check if robot is connected")
     }
@@ -22,7 +22,7 @@ export async function informPythonServerIpUpdate() {
 
 export const getServer = async (): Promise<boolean> => {
   try {
-    const response = await axios.get(pythonServer + "/");
+    const response = await axios.get(PYTHON_SERVER + "/");
     if(response.status == 200) {
       console.log(`Python server is running ${response.status}`);
       return true;
@@ -38,7 +38,7 @@ export const getServer = async (): Promise<boolean> => {
 
 export async function wsGetServer(ws: WebSocket) {
   try {
-    const response = await axios.get(pythonServer + "/");
+    const response = await axios.get(PYTHON_SERVER + "/");
     if(response.status == 200) {
       const wsResponse = {type: "SERVER", content: response.data}
       ws.send(JSON.stringify(wsResponse));
@@ -54,7 +54,7 @@ export async function wsGetServer(ws: WebSocket) {
 
 export async function wsGetRobot(ws: WebSocket): Promise<boolean> {
   try {
-    const response = await axios.get(pythonServer + "/connect");
+    const response = await axios.get(PYTHON_SERVER + "/connect");
     if(response.status == 200) {
       const wsResponse = {type: "ROBOT", content: response.data}
       ws.send(JSON.stringify(wsResponse));
@@ -73,7 +73,7 @@ export async function wsGetRobot(ws: WebSocket): Promise<boolean> {
 
 export async function wsGetProtocols(ws: WebSocket) {
   try {
-    const response = await axios.get(pythonServer + "/protocols");
+    const response = await axios.get(PYTHON_SERVER + "/protocols");
     if(response.status == 200) {
       const wsResponse = {type: "PROTOCOLS", content: response.data}
       ws.send(JSON.stringify(wsResponse));
@@ -90,7 +90,7 @@ export async function wsGetProtocols(ws: WebSocket) {
 export async function wsPostRun(ws: WebSocket, protocol_id: string) {
   try {
     const body = {"protocol_id": protocol_id}
-    const response = await axios.post(pythonServer + "/runs", body, {headers: headers});
+    const response = await axios.post(PYTHON_SERVER + "/runs", body, {headers: headers});
     if(response.status == 201) {
       const wsResponse = {type: "RUN", content: response.data}
       ws.send(JSON.stringify(wsResponse));
@@ -107,7 +107,7 @@ export async function wsPostRun(ws: WebSocket, protocol_id: string) {
 export async function wsRun(ws: WebSocket, protocol_id: string, command: string) {
   try {
     const body = {"protocol_id": protocol_id, "command": command}
-    const response = await axios.post(pythonServer + "/command", body, {headers: headers});
+    const response = await axios.post(PYTHON_SERVER + "/command", body, {headers: headers});
     if(response.status == 201) {
       console.log("Command sent to robot");
       const wsResponse = {type: "COMMAND", content: response.data}
@@ -125,7 +125,7 @@ export async function wsRun(ws: WebSocket, protocol_id: string, command: string)
 export async function sendCommand( command: string) {
   try {
     const body = {"command": command}
-    const response = await axios.post(pythonServer + "/command", body, {headers: headers});
+    const response = await axios.post(PYTHON_SERVER + "/command", body, {headers: headers});
     if(response.status == 201) {
       console.log("Command sent to robot");
       const wsResponse = {type: "COMMAND", content: response.data}
@@ -142,7 +142,7 @@ export async function sendCommand( command: string) {
 
 export async function wsRunStatus(ws: WebSocket) {
   try {
-    const response = await axios.get(pythonServer + "/runStatus");
+    const response = await axios.get(PYTHON_SERVER + "/runStatus");
     if(response.status == 200) {
       const wsResponse = {type: "RUN_STATUS", content: response.data}
       setRobotState(response.data);
