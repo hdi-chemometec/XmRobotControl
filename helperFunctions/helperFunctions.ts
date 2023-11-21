@@ -1,4 +1,4 @@
-import { informPythonServerIpUpdate } from "../ws_functions/REST_robot_functions";
+import { informPythonServerIpUpdate } from "../wsFunctions/RESTRobotFunctions";
 import express, { Express, Request, Response } from "express"; // is a web app framework used for building APIs.
 
 import DiscoveryClient, { SERVICE_EVENT, SERVICE_REMOVED_EVENT } from '@opentrons/discovery-client';

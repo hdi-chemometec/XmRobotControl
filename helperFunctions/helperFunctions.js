@@ -27,7 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startNodeServer = exports.getIp = void 0;
-const REST_robot_functions_1 = require("../ws_functions/REST_robot_functions");
+const RESTRobotFunctions_1 = require("../wsFunctions/RESTRobotFunctions");
 const express_1 = __importDefault(require("express")); // is a web app framework used for building APIs.
 const discovery_client_1 = __importStar(require("@opentrons/discovery-client"));
 const robot = new discovery_client_1.default();
@@ -40,7 +40,7 @@ robot.on(discovery_client_1.SERVICE_EVENT, (service) => {
             console.log("Ip address found: ", service.ip);
             if (service.ip != null) {
                 set_ip(service.ip);
-                (0, REST_robot_functions_1.informPythonServerIpUpdate)();
+                (0, RESTRobotFunctions_1.informPythonServerIpUpdate)();
             }
         }
         else {
@@ -51,7 +51,7 @@ robot.on(discovery_client_1.SERVICE_EVENT, (service) => {
 robot.on(discovery_client_1.SERVICE_REMOVED_EVENT, (service) => {
     service.forEach((service) => {
         console.log("Ip address removed: ", service.ip);
-        (0, REST_robot_functions_1.informPythonServerIpUpdate)();
+        (0, RESTRobotFunctions_1.informPythonServerIpUpdate)();
     });
 });
 function get_ip() {
