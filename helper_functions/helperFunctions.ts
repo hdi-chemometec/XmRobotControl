@@ -44,7 +44,7 @@ export function getIp(): string {
     if(robotIP != "") {
       return robotIP;
     } else {
-      return "No robot IP address found. Make sure the robot is turned on!";
+      return "";
     }
 }
 

@@ -65,7 +65,7 @@ function getIp() {
         return robotIP;
     }
     else {
-        return "No robot IP address found. Make sure the robot is turned on!";
+        return "";
     }
 }
 exports.getIp = getIp;
