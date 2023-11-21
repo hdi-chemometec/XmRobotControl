@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FlowInstrumentStates = exports.FlowRobotStates = void 0;
+/**
+ * FlowRobotStates
+ * @description Enum for the states of the robot during control flow
+ */
 var FlowRobotStates;
 (function (FlowRobotStates) {
     FlowRobotStates["START"] = "START";
@@ -9,6 +13,10 @@ var FlowRobotStates;
     FlowRobotStates["WAITING_FOR_INSTRUMENT"] = "WAITING_FOR_INSTRUMENT";
     FlowRobotStates["FINISHING"] = "FINISHING";
 })(FlowRobotStates || (exports.FlowRobotStates = FlowRobotStates = {}));
+/**
+ * FlowInstrumentStates
+ * @description Enum for the states of the instrument during control flow
+ */
 var FlowInstrumentStates;
 (function (FlowInstrumentStates) {
     FlowInstrumentStates["NOT_INITIALIZED"] = "NOT_INITIALIZED";

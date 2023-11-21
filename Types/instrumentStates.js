@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InstrumentStates = void 0;
+/**
+ * InstrumentStates
+ * @description Enum for the different states of an instrument
+ */
 var InstrumentStates;
 (function (InstrumentStates) {
     InstrumentStates["IDLE"] = "IDLE";
