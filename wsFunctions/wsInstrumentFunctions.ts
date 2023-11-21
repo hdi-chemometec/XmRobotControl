@@ -144,24 +144,28 @@ function handleReceivedMessage(message: Message) {
  * e.g. when the user clicks a button on the client, the client ws send a message to the server and this function forwards it to the instrument
  */
 export const fromServerSendMessageToInstrument = function (messageToSend: string) {
-  switch (messageToSend) {
-  case "STATE": {
-    const stateRequest = JSON.stringify({type: "STATE"});
-    sendMessageToInstrument(stateRequest);
-    break;
-  }
-  case "INITIALIZE":  {
-    const initializeRequest = JSON.stringify({type: "INITIALIZE"});
-    sendMessageToInstrument(initializeRequest);
-    break;
-  }
-  case "RUN":  {
-    const runRequest = JSON.stringify({type: "RUN", assay: "Count & Viability", measurement: "Protocols"});
-    sendMessageToInstrument(runRequest);
-    break;
-  }
-  default:
-    console.log("fromServerSendMessageToInstrument: Default");
-    break;
-  }
+  if(messageToSend !== "STATE" && messageToSend !== "INITIALIZE" && messageToSend !== "RUN") {
+    return;
+  } else {
+    switch (messageToSend) {
+      case "STATE": {
+        const stateRequest = JSON.stringify({type: "STATE"});
+        sendMessageToInstrument(stateRequest);
+        break;
+      }
+      case "INITIALIZE":  {
+        const initializeRequest = JSON.stringify({type: "INITIALIZE"});
+        sendMessageToInstrument(initializeRequest);
+        break;
+      }
+      case "RUN":  {
+        const runRequest = JSON.stringify({type: "RUN", assay: "Count & Viability", measurement: "Protocols"});
+        sendMessageToInstrument(runRequest);
+        break;
+      }
+      default:
+        console.log("fromServerSendMessageToInstrument: Default");
+        break;
+      }  
+    }
 };
