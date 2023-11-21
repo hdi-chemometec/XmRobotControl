@@ -7,12 +7,12 @@ const wsClientFunctions_1 = require("./wsClientFunctions");
 /*            Instrument Websocket functions            */
 const clientInstance = new websocket_1.client();
 const Instrument_WS_PORT = 80;
-let connection_state = false;
+let connectionState = false;
 function getConnectionState() {
-    return connection_state;
+    return connectionState;
 }
 function setInstrumentConnection(state) {
-    connection_state = state;
+    connectionState = state;
 }
 let sendMessageToInstrument;
 function getInstrumentConnection() {
@@ -79,7 +79,7 @@ function handleReceivedMessage(message) {
                 break;
             }
             default: {
-                console.log("Default");
+                console.log("handleReceivedMessage: WS instrument Default");
                 break;
             }
         }
@@ -104,7 +104,7 @@ const fromServerSendMessageToInstrument = function (messageToSend) {
             break;
         }
         default:
-            console.log("Default");
+            console.log("fromServerSendMessageToInstrument: Default");
             break;
     }
 };

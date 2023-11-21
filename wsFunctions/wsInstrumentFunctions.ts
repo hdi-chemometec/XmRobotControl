@@ -7,14 +7,14 @@ import { sendMessageToClient } from './wsClientFunctions';
 
 const clientInstance = new client();
 const Instrument_WS_PORT = 80;
-let connection_state = false;
+let connectionState = false;
 
 function getConnectionState(): boolean {
-  return connection_state;
+  return connectionState;
 }
 
 function setInstrumentConnection(state: boolean) {
-  connection_state = state;
+  connectionState = state;
 }
 
 let sendMessageToInstrument: (message: string) => void;
@@ -37,7 +37,7 @@ clientInstance.on("connect", function (connection) {
     setInstrumentConnection(true);
 
     connection.on("error", function (error) {
-        console.log("Instrument error occurred :" +error.toString());
+        console.log("Instrument error occurred :" + error.toString());
     });
 
     connection.on("close", function () {
@@ -88,7 +88,7 @@ function handleReceivedMessage(message: Message) {
         break;
       }
       default:{
-        console.log("Default");
+        console.log("handleReceivedMessage: WS instrument Default");
         break;
       }
     }
@@ -114,7 +114,7 @@ export const fromServerSendMessageToInstrument = function (messageToSend: string
     break;
   }
   default:
-    console.log("Default");
+    console.log("fromServerSendMessageToInstrument: Default");
     break;
   }
 };
