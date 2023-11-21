@@ -5,17 +5,34 @@ import  { shouldFlowStart, startControlFlow } from '../helperFunctions/flowContr
 import { reconnectToClient } from '../startUp';
 
 /*            Client websocket functions            */
-let wsClient: boolean = false;
+
+/**
+ * connectedClients
+ * @description variable used to store the connected clients
+ */
 const connectedClients = new Set<WebSocket>();
 
+/**
+ * wsClient
+ * @description variable describing the current state of the client connection
+ * @type {boolean}
+ * @default false
+ * getWsClient: returns the wsClient variable
+ * setWsClient: sets the wsClient variable
+ */
+let wsClient: boolean = false;
 export function getWsClient(): boolean {
   return wsClient;
 }
-
 function setWsClient(state: boolean) {
   wsClient = state;
 }
 
+/**
+ * startClientServer
+ * @description function that starts the client server on port 8084
+ * The function is called in the startUp.ts file when waiting for the client to connect
+ */
 export function startClientServer(){
   const CLIENT_WS_PORT = 8084;
   const wsServer = new WebSocket.Server({ port: CLIENT_WS_PORT });
@@ -36,12 +53,23 @@ export function startClientServer(){
         reconnectToClient();
       });      
 
+      /**
+       * fetchRunStatus
+       * @description function that fetches the run status from the robot
+       * The function is called every 2 seconds
+       */
       function fetchRunStatus() { //pulling run status from robot
         wsRunStatus(ws);
       }
 
       setInterval(fetchRunStatus, 2000);
 
+    /**
+     * handleWsMessages
+     * @param message - message received from the client
+     * @param ws - websocket instance
+     * @description function that handles the messages received from the client
+     */
     function handleWsMessages(message: string, ws: WebSocket) {
       const json = JSON.parse(message);
       console.log("Received message from client: ",json.type);
@@ -98,9 +126,16 @@ export function startClientServer(){
   });
 }
 
-export const sendMessageToClient = function (data: string): void {
+/**
+ * sendMessageToClient
+ * @param message - data to send to the client
+ * @description function that sends a message to the client
+ * The function is called in the wsInstrumentFunctions.ts file when the instrument sends a message to the server
+ * e.g. when the state of the instrument changes, the instrument sends a message to the server and this function forwards it to the client
+ */
+export const sendMessageToClient = function (message: string): void {
   try {
-    const jsonString = JSON.stringify(data);
+    const jsonString = JSON.stringify(message);
     connectedClients.forEach((client: WebSocket) => {
       console.log("Sending message to client: ", jsonString);
       client.send(jsonString);
