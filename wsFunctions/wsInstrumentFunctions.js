@@ -3,8 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.fromServerSendMessageToInstrument = exports.startInstrumentConnection = exports.getInstrumentConnection = void 0;
 const websocket_1 = require("websocket");
 const startUp_1 = require("../startUp");
-const ws_client_functions_1 = require("./ws_client_functions");
-const startUp_2 = require("../startUp");
+const wsClientFunctions_1 = require("./wsClientFunctions");
 /*            Instrument Websocket functions            */
 const clientInstance = new websocket_1.client();
 const Instrument_WS_PORT = 80;
@@ -37,7 +36,7 @@ clientInstance.on("connect", function (connection) {
     connection.on("close", function () {
         console.log("Instrument  closed");
         setInstrumentConnection(false);
-        (0, startUp_2.reconnectToInstrument)();
+        (0, startUp_1.reconnectToInstrument)();
     });
     connection.on("message", function (message) {
         console.log("Received message from instrument", message);
@@ -56,7 +55,7 @@ function handleReceivedMessage(message) {
     if (message.type === 'utf8') {
         const json = JSON.parse(message.utf8Data);
         console.log("Received message from instrument: ", json);
-        (0, ws_client_functions_1.sendMessageToClient)(json); //inform client of changes
+        (0, wsClientFunctions_1.sendMessageToClient)(json); //inform client of changes
         switch (json.type) {
             case "STATE": {
                 const instrumentState = json.content;

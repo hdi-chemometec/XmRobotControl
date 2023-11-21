@@ -5,14 +5,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendMessageToClient = exports.startClientServer = exports.getWsClient = void 0;
 const ws_1 = __importDefault(require("ws"));
-const REST_robot_functions_1 = require("./REST_robot_functions");
-const ws_instrument_functions_1 = require("./ws_instrument_functions");
-const flowControl_1 = require("../helper_functions/flowControl");
+const RESTRobotFunctions_1 = require("./RESTRobotFunctions");
+const wsInstrumentFunctions_1 = require("./wsInstrumentFunctions");
+const flowControl_1 = require("../helperFunctions/flowControl");
 const startUp_1 = require("../startUp");
 /*            Client websocket functions            */
 let wsClient = false;
 const connectedClients = new Set();
-let globalWs;
 function getWsClient() {
     return wsClient;
 }
@@ -26,7 +25,6 @@ function startClientServer() {
     wsServer.on('connection', (ws) => {
         console.log(`New client connected on PORT ${Client_WS_PORT}`);
         setWsClient(true);
-        globalWs = ws;
         connectedClients.add(ws);
         ws.on('message', (message) => {
             console.log(`Received message: ${message}`);
@@ -38,9 +36,9 @@ function startClientServer() {
             (0, startUp_1.reconnectToClient)();
         });
         function fetchRunStatus() {
-            (0, REST_robot_functions_1.wsRunStatus)(globalWs);
+            (0, RESTRobotFunctions_1.wsRunStatus)(ws);
         }
-        setInterval(fetchRunStatus, 1000);
+        setInterval(fetchRunStatus, 2000);
         function handleWsMessages(message, ws) {
             const json = JSON.parse(message);
             console.log("Received message from client: ", json.type);
@@ -51,24 +49,24 @@ function startClientServer() {
                     break;
                 }
                 case "SERVER": {
-                    (0, REST_robot_functions_1.wsGetServer)(ws);
+                    (0, RESTRobotFunctions_1.wsGetServer)(ws);
                     break;
                 }
                 case "ROBOT": {
-                    (0, REST_robot_functions_1.wsGetRobot)(ws);
+                    (0, RESTRobotFunctions_1.wsGetRobot)(ws);
                     break;
                 }
                 case "PROTOCOLS": {
-                    (0, REST_robot_functions_1.wsGetProtocols)(ws);
+                    (0, RESTRobotFunctions_1.wsGetProtocols)(ws);
                     break;
                 }
                 case "RUN": {
                     const protocol_id = json.protocolId;
-                    (0, REST_robot_functions_1.wsPostRun)(ws, protocol_id);
+                    (0, RESTRobotFunctions_1.wsPostRun)(ws, protocol_id);
                     break;
                 }
                 case "RUN_STATUS": {
-                    (0, REST_robot_functions_1.wsRunStatus)(ws);
+                    (0, RESTRobotFunctions_1.wsRunStatus)(ws);
                     break;
                 }
                 case "COMMAND": {
@@ -76,7 +74,7 @@ function startClientServer() {
                     const command = json.command;
                     if ((0, flowControl_1.shouldFlowStart)()) {
                         console.log("Flow should start");
-                        (0, REST_robot_functions_1.wsRun)(ws, protocol_id, command);
+                        (0, RESTRobotFunctions_1.wsRun)(ws, protocol_id, command);
                         console.log("CONTROL BEGINS");
                         (0, flowControl_1.startControlFlow)();
                     }
@@ -88,7 +86,7 @@ function startClientServer() {
                     break;
                 }
                 case "STATE": {
-                    (0, ws_instrument_functions_1.fromServerSendMessageToInstrument)("STATE");
+                    (0, wsInstrumentFunctions_1.fromServerSendMessageToInstrument)("STATE");
                     break;
                 }
                 default:

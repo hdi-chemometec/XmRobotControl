@@ -29,7 +29,7 @@ function informPythonServerIpUpdate() {
             }
         }
         catch (error) {
-            console.log("Python server is not running");
+            console.log("informPythonServerIpUpdate: Error, Python server is not running");
         }
     });
 }
@@ -47,7 +47,7 @@ const getServer = () => __awaiter(void 0, void 0, void 0, function* () {
         }
     }
     catch (error) {
-        console.error("Python server is not running");
+        console.error("getServer: Error, Python server is not running");
         return false;
     }
 });
@@ -67,7 +67,7 @@ function wsGetServer(ws) {
             }
         }
         catch (error) {
-            console.error("Axios error occurred");
+            console.error("wsGetServer: Error, Axios error occurred");
         }
     });
 }
@@ -89,7 +89,7 @@ function wsGetRobot(ws) {
             }
         }
         catch (error) {
-            console.error("Axios error occurred");
+            console.error("wsGetRobot: Error, Axios error occurred");
             return false;
         }
     });
@@ -110,7 +110,7 @@ function wsGetProtocols(ws) {
             }
         }
         catch (error) {
-            console.error("Axios error occurred");
+            console.error("wsGetProtocols: Error, Axios error occurred");
         }
     });
 }
@@ -131,7 +131,7 @@ function wsPostRun(ws, protocol_id) {
             }
         }
         catch (error) {
-            console.error("Axios error occurred");
+            console.error("wsPostRun: Error, Axios error occurred");
         }
     });
 }
@@ -153,7 +153,7 @@ function wsRun(ws, protocol_id, command) {
             }
         }
         catch (error) {
-            console.error("Axios error occurred");
+            console.error("wsRun: Error, Axios error occurred");
         }
     });
 }
@@ -175,7 +175,7 @@ function sendCommand(command) {
             }
         }
         catch (error) {
-            console.error("Axios error occurred");
+            console.error("sendCommand: Error, Axios error occurred");
         }
     });
 }
@@ -195,7 +195,7 @@ function wsRunStatus(ws) {
             }
         }
         catch (error) {
-            console.error("Axios error occurred");
+            console.error("wsRunStatus: Error, Axios error occurred");
         }
     });
 }

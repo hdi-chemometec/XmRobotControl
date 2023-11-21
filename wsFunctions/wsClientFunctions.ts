@@ -1,13 +1,12 @@
 import WebSocket from 'ws';
-import { wsGetServer, wsGetRobot, wsGetProtocols, wsPostRun, wsRun, wsRunStatus } from "./REST_robot_functions";
-import { fromServerSendMessageToInstrument } from './ws_instrument_functions';
-import  { shouldFlowStart, startControlFlow } from '../helper_functions/flowControl';
+import { wsGetServer, wsGetRobot, wsGetProtocols, wsPostRun, wsRun, wsRunStatus } from "./RESTRobotFunctions";
+import { fromServerSendMessageToInstrument } from './wsInstrumentFunctions';
+import  { shouldFlowStart, startControlFlow } from '../helperFunctions/flowControl';
 import { reconnectToClient } from '../startUp';
 
 /*            Client websocket functions            */
 let wsClient: boolean = false;
 const connectedClients = new Set<WebSocket>();
-let globalWs: WebSocket;
 
 export function getWsClient(): boolean {
   return wsClient;
@@ -24,7 +23,6 @@ export function startClientServer(){
   wsServer.on('connection', (ws: WebSocket) => {
       console.log(`New client connected on PORT ${Client_WS_PORT}`);
       setWsClient(true);
-      globalWs = ws;
       connectedClients.add(ws);
     
       ws.on('message', (message: string) => {
@@ -39,10 +37,10 @@ export function startClientServer(){
       });      
 
       function fetchRunStatus() { //pulling run status from robot
-        wsRunStatus(globalWs);
+        wsRunStatus(ws);
       }
 
-        setInterval(fetchRunStatus, 1000);
+      setInterval(fetchRunStatus, 2000);
 
     function handleWsMessages(message: string, ws: WebSocket) {
       const json = JSON.parse(message);

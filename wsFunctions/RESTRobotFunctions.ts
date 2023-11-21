@@ -16,7 +16,7 @@ export async function informPythonServerIpUpdate() {
       console.log("Invoked python server to check if robot is connected")
     }
   } catch (error) {
-    console.log("Python server is not running");
+    console.log("informPythonServerIpUpdate: Error, Python server is not running");
   }
 }
 
@@ -31,7 +31,7 @@ export const getServer = async (): Promise<boolean> => {
       return false;
     }
   } catch (error) {
-    console.error("Python server is not running");
+    console.error("getServer: Error, Python server is not running");
     return false;
   }
 }
@@ -48,7 +48,7 @@ export async function wsGetServer(ws: WebSocket) {
       ws.send(JSON.stringify(wsResponse));
     }
   } catch (error) {
-    console.error("Axios error occurred");
+    console.error("wsGetServer: Error, Axios error occurred");
   }
 }
 
@@ -66,7 +66,7 @@ export async function wsGetRobot(ws: WebSocket): Promise<boolean> {
       return false;
     }
   } catch (error) {
-    console.error("Axios error occurred");
+    console.error("wsGetRobot: Error, Axios error occurred");
     return false;
   }
 }
@@ -83,7 +83,7 @@ export async function wsGetProtocols(ws: WebSocket) {
       ws.send(JSON.stringify(wsResponse));
     }
   } catch (error) {
-    console.error("Axios error occurred");    
+    console.error("wsGetProtocols: Error, Axios error occurred");    
   }
 }
 
@@ -100,7 +100,7 @@ export async function wsPostRun(ws: WebSocket, protocol_id: string) {
       ws.send(JSON.stringify(wsResponse));
     }
   } catch (error) {
-    console.error("Axios error occurred");    
+    console.error("wsPostRun: Error, Axios error occurred");    
   }
 }
   
@@ -118,7 +118,7 @@ export async function wsRun(ws: WebSocket, protocol_id: string, command: string)
       ws.send(JSON.stringify(wsResponse));
     }
   } catch (error) {
-    console.error("Axios error occurred");
+    console.error("wsRun: Error, Axios error occurred");
   }
 }
 
@@ -136,7 +136,7 @@ export async function sendCommand( command: string) {
       console.error(wsResponse);
     }
   } catch (error) {
-    console.error("Axios error occurred");
+    console.error("sendCommand: Error, Axios error occurred");
   }
 }
 
@@ -152,6 +152,6 @@ export async function wsRunStatus(ws: WebSocket) {
       ws.send(JSON.stringify(wsResponse));
     }
   } catch (error) {
-    console.error("Axios error occurred");
+    console.error("wsRunStatus: Error, Axios error occurred");
   }
 }
