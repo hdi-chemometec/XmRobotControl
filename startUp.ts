@@ -21,7 +21,7 @@ export const getInstrumentState = () => {
   return instrumentState;
 }
 
-export async function waitForRobotConnection() {
+export function waitForRobotConnection() {
   setTimeout(function() {
     const ipConnection = getIp();
     console.log("Robot connection state: ", ipConnection);
@@ -35,9 +35,9 @@ export async function waitForRobotConnection() {
   }, 10000);
 }
 
-function waitForServerConnection() {
+async function waitForServerConnection() {
+  const serverConnection = await getServer();
   setTimeout(function() {
-    const serverConnection = getServer();
     console.log("Python server connection state: ", serverConnection);
     if(!serverConnection) {
       console.log("Python server not connected");
@@ -76,7 +76,7 @@ function waitForClientConnection() {
     } else {
       console.log("Client is connected");
     }
-  }, 10000);
+  }, 3000);
 }
 
 
@@ -86,7 +86,7 @@ export function reconnectToInstrument() {
     console.log("Instrument connection state: ", instrumentConnection);
     if(!instrumentConnection) {
       console.log("Instrument is not connected");
-      startInstrumentConnection(); //server is client is the instance must be restarted
+      startInstrumentConnection(); //server is client so the instance must be restarted
       reconnectToInstrument();
     } else {
       console.log("Instrument is reconnected");

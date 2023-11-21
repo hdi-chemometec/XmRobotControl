@@ -35,36 +35,36 @@ const getInstrumentState = () => {
 };
 exports.getInstrumentState = getInstrumentState;
 function waitForRobotConnection() {
-    return __awaiter(this, void 0, void 0, function* () {
-        setTimeout(function () {
-            const ipConnection = (0, helperFunctions_1.getIp)();
-            console.log("Robot connection state: ", ipConnection);
-            if (ipConnection == "") {
-                console.log("Robot not connected");
-                waitForRobotConnection();
-            }
-            else {
-                console.log("Robot is connected");
-                waitForServerConnection();
-            }
-        }, 10000);
-    });
+    setTimeout(function () {
+        const ipConnection = (0, helperFunctions_1.getIp)();
+        console.log("Robot connection state: ", ipConnection);
+        if (ipConnection == "") {
+            console.log("Robot not connected");
+            waitForRobotConnection();
+        }
+        else {
+            console.log("Robot is connected");
+            waitForServerConnection();
+        }
+    }, 10000);
 }
 exports.waitForRobotConnection = waitForRobotConnection;
 function waitForServerConnection() {
-    setTimeout(function () {
-        const serverConnection = (0, REST_robot_functions_1.getServer)();
-        console.log("Python server connection state: ", serverConnection);
-        if (!serverConnection) {
-            console.log("Python server not connected");
-            waitForServerConnection();
-        }
-        else {
-            console.log("Python server is connected");
-            (0, ws_instrument_functions_1.startInstrumentConnection)();
-            waitForInstrumentConnection();
-        }
-    }, 10000);
+    return __awaiter(this, void 0, void 0, function* () {
+        const serverConnection = yield (0, REST_robot_functions_1.getServer)();
+        setTimeout(function () {
+            console.log("Python server connection state: ", serverConnection);
+            if (!serverConnection) {
+                console.log("Python server not connected");
+                waitForServerConnection();
+            }
+            else {
+                console.log("Python server is connected");
+                (0, ws_instrument_functions_1.startInstrumentConnection)();
+                waitForInstrumentConnection();
+            }
+        }, 10000);
+    });
 }
 function waitForInstrumentConnection() {
     setTimeout(function () {
@@ -93,7 +93,7 @@ function waitForClientConnection() {
         else {
             console.log("Client is connected");
         }
-    }, 10000);
+    }, 3000);
 }
 function reconnectToInstrument() {
     setTimeout(function () {
@@ -101,7 +101,7 @@ function reconnectToInstrument() {
         console.log("Instrument connection state: ", instrumentConnection);
         if (!instrumentConnection) {
             console.log("Instrument is not connected");
-            (0, ws_instrument_functions_1.startInstrumentConnection)(); //server is client is the instance must be restarted
+            (0, ws_instrument_functions_1.startInstrumentConnection)(); //server is client so the instance must be restarted
             reconnectToInstrument();
         }
         else {
