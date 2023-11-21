@@ -91,7 +91,7 @@ export function startClientServer(){
           break;
         }
         default:
-          console.log("Default");
+          console.log("handleWsMessages: WS client Default");
           break;
         }
     }
