@@ -68,58 +68,65 @@ function startClientServer() {
          * @description function that handles the messages received from the client
          */
         function handleWsMessages(message, ws) {
-            const json = JSON.parse(message);
-            console.log("Received message from client: ", json.type);
-            switch (json.type) {
-                case "PING": {
-                    const response = JSON.stringify({ type: "PING", content: "PONG" });
-                    ws.send(response);
-                    break;
-                }
-                case "SERVER": {
-                    (0, RESTRobotFunctions_1.wsGetServer)(ws);
-                    break;
-                }
-                case "ROBOT": {
-                    (0, RESTRobotFunctions_1.wsGetRobot)(ws);
-                    break;
-                }
-                case "PROTOCOLS": {
-                    (0, RESTRobotFunctions_1.wsGetProtocols)(ws);
-                    break;
-                }
-                case "RUN": {
-                    const protocolId = json.protocolId;
-                    (0, RESTRobotFunctions_1.wsPostRun)(ws, protocolId);
-                    break;
-                }
-                case "RUN_STATUS": {
-                    (0, RESTRobotFunctions_1.wsRunStatus)(ws);
-                    break;
-                }
-                case "COMMAND": {
-                    const protocolId = json.protocolId;
-                    const command = json.command;
-                    if ((0, flowControl_1.shouldFlowStart)()) {
-                        console.log("Flow should start");
-                        (0, RESTRobotFunctions_1.wsRun)(ws, protocolId, command);
-                        console.log("CONTROL BEGINS");
-                        (0, flowControl_1.startControlFlow)();
-                    }
-                    else {
-                        console.log("Flow should not start");
-                        const response = JSON.stringify({ type: "COMMAND", content: "stop" });
+            try {
+                const json = JSON.parse(message);
+                console.log("Received message from client: ", json.type);
+                switch (json.type) {
+                    case "PING": {
+                        const response = JSON.stringify({ type: "PING", content: "PONG" });
                         ws.send(response);
+                        break;
                     }
-                    break;
+                    case "SERVER": {
+                        (0, RESTRobotFunctions_1.wsGetServer)(ws);
+                        break;
+                    }
+                    case "ROBOT": {
+                        (0, RESTRobotFunctions_1.wsGetRobot)(ws);
+                        break;
+                    }
+                    case "PROTOCOLS": {
+                        (0, RESTRobotFunctions_1.wsGetProtocols)(ws);
+                        break;
+                    }
+                    case "RUN": {
+                        const protocolId = json.protocolId;
+                        (0, RESTRobotFunctions_1.wsPostRun)(ws, protocolId);
+                        break;
+                    }
+                    case "RUN_STATUS": {
+                        (0, RESTRobotFunctions_1.wsRunStatus)(ws);
+                        break;
+                    }
+                    case "COMMAND": {
+                        const protocolId = json.protocolId;
+                        const command = json.command;
+                        if ((0, flowControl_1.shouldFlowStart)()) {
+                            console.log("Flow should start");
+                            (0, RESTRobotFunctions_1.wsRun)(ws, protocolId, command);
+                            console.log("CONTROL BEGINS");
+                            (0, flowControl_1.startControlFlow)();
+                        }
+                        else {
+                            console.log("Flow should not start");
+                            const response = JSON.stringify({ type: "COMMAND", content: "stop" });
+                            ws.send(response);
+                        }
+                        break;
+                    }
+                    case "STATE": {
+                        (0, wsInstrumentFunctions_1.fromServerSendMessageToInstrument)("STATE");
+                        break;
+                    }
+                    default:
+                        console.log("default: handleWsMessages");
+                        ws.send("Error: Invalid message type");
+                        break;
                 }
-                case "STATE": {
-                    (0, wsInstrumentFunctions_1.fromServerSendMessageToInstrument)("STATE");
-                    break;
-                }
-                default:
-                    console.log("handleWsMessages: WS client Default");
-                    break;
+            }
+            catch (error) {
+                console.error("handleWsMessages: WS client message error");
+                ws.send("Error: Invalid message");
             }
         }
     });

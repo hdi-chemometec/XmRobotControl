@@ -71,57 +71,63 @@ export function startClientServer(){
      * @description function that handles the messages received from the client
      */
     function handleWsMessages(message: string, ws: WebSocket) {
-      const json = JSON.parse(message);
-      console.log("Received message from client: ",json.type);
-      switch (json.type) {
-        case "PING":{
-          const response =JSON.stringify({ type: "PING", content: "PONG" });
-          ws.send(response);
-          break;}
-        case "SERVER":{
-          wsGetServer(ws);
-          break;
-        }
-        case "ROBOT":{
-          wsGetRobot(ws);
-          break;
-        }
-        case "PROTOCOLS":{
-          wsGetProtocols(ws);
-          break;
-        }
-        case "RUN": {
-          const protocolId = json.protocolId;
-          wsPostRun(ws, protocolId);
-          break;
-        }
-        case "RUN_STATUS": {
-          wsRunStatus(ws);
-          break;
-        }
-        case "COMMAND": {
-          const protocolId = json.protocolId;
-          const command = json.command;
-          if(shouldFlowStart()) {
-            console.log("Flow should start");
-            wsRun(ws, protocolId, command);
-            console.log("CONTROL BEGINS");
-            startControlFlow();
-          } else {
-            console.log("Flow should not start");
-            const response = JSON.stringify({type: "COMMAND", content: "stop"});
+      try {
+        const json = JSON.parse(message);
+        console.log("Received message from client: ",json.type);
+        switch (json.type) {
+          case "PING":{
+            const response =JSON.stringify({ type: "PING", content: "PONG" });
             ws.send(response);
+            break;}
+          case "SERVER":{
+            wsGetServer(ws);
+            break;
           }
-          break;
+          case "ROBOT":{
+            wsGetRobot(ws);
+            break;
+          }
+          case "PROTOCOLS":{
+            wsGetProtocols(ws);
+            break;
+          }
+          case "RUN": {
+            const protocolId = json.protocolId;
+            wsPostRun(ws, protocolId);
+            break;
+          }
+          case "RUN_STATUS": {
+            wsRunStatus(ws);
+            break;
+          }
+          case "COMMAND": {
+            const protocolId = json.protocolId;
+            const command = json.command;
+            if(shouldFlowStart()) {
+              console.log("Flow should start");
+              wsRun(ws, protocolId, command);
+              console.log("CONTROL BEGINS");
+              startControlFlow();
+            } else {
+              console.log("Flow should not start");
+              const response = JSON.stringify({type: "COMMAND", content: "stop"});
+              ws.send(response);
+            }
+            break;
+          }
+          case "STATE": {
+            fromServerSendMessageToInstrument("STATE");
+            break;
+          }
+          default:
+            console.log("default: handleWsMessages");
+            ws.send("Error: Invalid message type");
+            break;
         }
-        case "STATE": {
-          fromServerSendMessageToInstrument("STATE");
-          break;
-        }
-        default:
-          console.log("handleWsMessages: WS client Default");
-          break;
-        }
+      } catch (error) {
+        console.error("handleWsMessages: WS client message error");
+        ws.send("Error: Invalid message");
+      }
     }
   });
 }
