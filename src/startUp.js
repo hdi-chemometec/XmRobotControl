@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.reconnectToClient = exports.reconnectToInstrument = exports.waitForRobotConnection = exports.getInstrumentState = exports.setInstrumentState = exports.getRobotState = exports.setRobotState = void 0;
-const helperFunctions_1 = require("./src/helperFunctions");
-const RESTRobotFunctions_1 = require("./src/RESTRobotFunctions");
-const wsInstrumentFunctions_1 = require("./src/wsInstrumentFunctions");
-const wsClientFunctions_1 = require("./src/wsClientFunctions");
-const runState_1 = require("./Types/runState");
-const instrumentStates_1 = require("./Types/instrumentStates");
+const helperFunctions_1 = require("./helperFunctions");
+const RESTRobotFunctions_1 = require("./RESTRobotFunctions");
+const wsInstrumentFunctions_1 = require("./wsInstrumentFunctions");
+const wsClientFunctions_1 = require("./wsClientFunctions");
+const runState_1 = require("../Types/runState");
+const instrumentStates_1 = require("../Types/instrumentStates");
 /**
  * robotState
  * @description variable describing the current state of the robot
