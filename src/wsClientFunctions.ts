@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import { wsGetServer, wsGetRobot, wsGetProtocols, wsPostRun, wsRun, wsRunStatus } from "./RESTRobotFunctions";
-import { fromServerSendMessageToInstrument } from './wsInstrumentFunctions';
+import { fromServerSendMessageToInstrument, getInstrumentConnection } from './wsInstrumentFunctions';
 import  { shouldFlowStart, startControlFlow } from './flowControl';
 import { reconnectToClient } from './startUp';
 
@@ -41,6 +41,7 @@ export function startClientServer(){
       console.log(`New client connected on PORT ${CLIENT_WS_PORT}`);
       setWsClient(true);
       connectedClients.add(ws);
+      sendMessageToClient(JSON.parse(JSON.stringify({type: "INSTRUMENT_CONNECTION", content: getInstrumentConnection()})));
     
       ws.on('message', (message: string) => {
         console.log(`Received message: ${message}`);

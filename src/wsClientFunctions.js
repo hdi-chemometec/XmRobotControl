@@ -43,6 +43,7 @@ function startClientServer() {
         console.log(`New client connected on PORT ${CLIENT_WS_PORT}`);
         setWsClient(true);
         connectedClients.add(ws);
+        (0, exports.sendMessageToClient)(JSON.parse(JSON.stringify({ type: "INSTRUMENT_CONNECTION", content: (0, wsInstrumentFunctions_1.getInstrumentConnection)() })));
         ws.on('message', (message) => {
             console.log(`Received message: ${message}`);
             handleWsMessages(message, ws);
