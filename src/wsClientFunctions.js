@@ -7,8 +7,8 @@ exports.sendMessageToClient = exports.startClientServer = exports.getWsClient = 
 const ws_1 = __importDefault(require("ws"));
 const RESTRobotFunctions_1 = require("./RESTRobotFunctions");
 const wsInstrumentFunctions_1 = require("./wsInstrumentFunctions");
-const flowControl_1 = require("../helperFunctions/flowControl");
-const startUp_1 = require("../startUp");
+const flowControl_1 = require("./flowControl");
+const startUp_1 = require("./startUp");
 /*            Client websocket functions            */
 /**
  * connectedClients

@@ -1,6 +1,6 @@
 import { Message, client } from 'websocket';
 import { InstrumentStates } from "../Types/instrumentStates";
-import { setInstrumentState, reconnectToInstrument } from '../startUp';
+import { setInstrumentState, reconnectToInstrument } from './startUp';
 import { sendMessageToClient } from './wsClientFunctions';
 
 /*            Instrument Websocket functions            */

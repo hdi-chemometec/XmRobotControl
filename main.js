@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const helperFunctions_1 = require("./helperFunctions/helperFunctions");
-const startUp_1 = require("./startUp");
+const helperFunctions_1 = require("./src/helperFunctions");
+const startUp_1 = require("./src/startUp");
 /**
  * Main function
  * Starts the node server and starts the startup process

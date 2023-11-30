@@ -1,9 +1,9 @@
 import { FlowInstrumentStates, FlowRobotStates } from "../Types/flowStates";
 import { InstrumentStates } from "../Types/instrumentStates";
 import { RobotStates } from "../Types/runState";
-import { getInstrumentState, getRobotState } from "../startUp";
-import { fromServerSendMessageToInstrument } from "../wsFunctions/wsInstrumentFunctions";
-import { sendCommand } from "../wsFunctions/RESTRobotFunctions";
+import { getInstrumentState, getRobotState } from "./startUp";
+import { fromServerSendMessageToInstrument } from "./wsInstrumentFunctions";
+import { sendCommand } from "./RESTRobotFunctions";
 
 /**
  * flowInstrumentState

@@ -1,8 +1,8 @@
 import WebSocket from 'ws';
 import { wsGetServer, wsGetRobot, wsGetProtocols, wsPostRun, wsRun, wsRunStatus } from "./RESTRobotFunctions";
 import { fromServerSendMessageToInstrument } from './wsInstrumentFunctions';
-import  { shouldFlowStart, startControlFlow } from '../helperFunctions/flowControl';
-import { reconnectToClient } from '../startUp';
+import  { shouldFlowStart, startControlFlow } from './flowControl';
+import { reconnectToClient } from './startUp';
 
 /*            Client websocket functions            */
 

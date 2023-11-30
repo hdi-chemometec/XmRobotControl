@@ -1,5 +1,5 @@
-import { startNodeServer } from "./helperFunctions/helperFunctions";
-import { waitForRobotConnection } from "./startUp";
+import { startNodeServer } from "./src/helperFunctions";
+import { waitForRobotConnection } from "./src/startUp";
 
 /**
  * Main function

@@ -1,6 +1,6 @@
 import axios from "axios"; // library used for making HTTP requests to servers. E.g. the flask server
 import WebSocket from 'ws';
-import { setRobotState } from "../startUp";
+import { setRobotState } from "./startUp";
 import { RobotStates } from "../Types/runState";
 
 /**

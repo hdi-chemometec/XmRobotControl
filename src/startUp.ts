@@ -1,9 +1,9 @@
-import { getIp } from "./helperFunctions/helperFunctions";
-import { getServer } from "./wsFunctions/RESTRobotFunctions";
-import { getInstrumentConnection, startInstrumentConnection  } from './wsFunctions/wsInstrumentFunctions';
-import { getWsClient, startClientServer } from "./wsFunctions/wsClientFunctions";
-import { RobotStates } from "./Types/runState";
-import { InstrumentStates } from "./Types/instrumentStates";
+import { getIp } from "./helperFunctions";
+import { getServer } from "./RESTRobotFunctions";
+import { getInstrumentConnection, startInstrumentConnection  } from './wsInstrumentFunctions';
+import { getWsClient, startClientServer } from "./wsClientFunctions";
+import { RobotStates } from "../Types/runState";
+import { InstrumentStates } from "../Types/instrumentStates";
 
 /**
  * robotState

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fromServerSendMessageToInstrument = exports.startInstrumentConnection = exports.getInstrumentConnection = void 0;
 const websocket_1 = require("websocket");
-const startUp_1 = require("../startUp");
+const startUp_1 = require("./startUp");
 const wsClientFunctions_1 = require("./wsClientFunctions");
 /*            Instrument Websocket functions            */
 const clientInstance = new websocket_1.client();

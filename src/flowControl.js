@@ -4,9 +4,9 @@ exports.startControlFlow = exports.shouldFlowStart = void 0;
 const flowStates_1 = require("../Types/flowStates");
 const instrumentStates_1 = require("../Types/instrumentStates");
 const runState_1 = require("../Types/runState");
-const startUp_1 = require("../startUp");
-const wsInstrumentFunctions_1 = require("../wsFunctions/wsInstrumentFunctions");
-const RESTRobotFunctions_1 = require("../wsFunctions/RESTRobotFunctions");
+const startUp_1 = require("./startUp");
+const wsInstrumentFunctions_1 = require("./wsInstrumentFunctions");
+const RESTRobotFunctions_1 = require("./RESTRobotFunctions");
 /**
  * flowInstrumentState
  * @description variable describing the current flow state of the instrument
