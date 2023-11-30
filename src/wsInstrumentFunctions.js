@@ -62,12 +62,14 @@ clientInstance.on("connectFailed", function () {
 clientInstance.on("connect", function (connection) {
     console.log("Instrument Connected");
     setInstrumentConnection(true);
+    (0, wsClientFunctions_1.sendMessageToClient)(JSON.parse(JSON.stringify({ type: "INSTRUMENT_CONNECTION", content: getConnectionState() })));
     connection.on("error", function (error) {
         console.log("Instrument error occurred :" + error.toString());
     });
     connection.on("close", function () {
         console.log("Instrument  closed");
         setInstrumentConnection(false);
+        (0, wsClientFunctions_1.sendMessageToClient)(JSON.parse(JSON.stringify({ type: "INSTRUMENT_CONNECTION", content: getConnectionState() })));
         (0, startUp_1.reconnectToInstrument)();
     });
     connection.on("message", function (message) {

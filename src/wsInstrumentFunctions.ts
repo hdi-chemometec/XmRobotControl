@@ -66,6 +66,7 @@ clientInstance.on("connectFailed", function () {
 clientInstance.on("connect", function (connection) {
     console.log("Instrument Connected");
     setInstrumentConnection(true);
+    sendMessageToClient(JSON.parse(JSON.stringify({type:"INSTRUMENT_CONNECTION", content: getConnectionState()})));
 
     connection.on("error", function (error) {
         console.log("Instrument error occurred :" + error.toString());
@@ -74,6 +75,7 @@ clientInstance.on("connect", function (connection) {
     connection.on("close", function () {
         console.log("Instrument  closed");
         setInstrumentConnection(false);
+        sendMessageToClient(JSON.parse(JSON.stringify({type:"INSTRUMENT_CONNECTION", content: getConnectionState()})));
         reconnectToInstrument();
     });
 
