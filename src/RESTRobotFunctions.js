@@ -12,10 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.wsRunStatus = exports.sendCommand = exports.wsRun = exports.wsPostRun = exports.wsGetProtocols = exports.wsGetRobot = exports.wsGetServer = exports.getServer = exports.informPythonServerIpUpdate = void 0;
+exports.sendCommand = exports.wsRunStatus = exports.wsRun = exports.wsPostRun = exports.wsGetProtocols = exports.wsGetRobot = exports.wsGetServer = exports.getServer = exports.informPythonServerIpUpdate = void 0;
 const axios_1 = __importDefault(require("axios")); // library used for making HTTP requests to servers. E.g. the flask server
 const startUp_1 = require("./startUp");
-const runState_1 = require("../Types/runState");
 /**
  * headers
  * @description variable used to store the headers for the HTTP requests
@@ -61,7 +60,6 @@ const getServer = () => __awaiter(void 0, void 0, void 0, function* () {
             return true;
         }
         else {
-            console.log(`Non-200 response from Flask ${response.status}`);
             return false;
         }
     }
@@ -83,11 +81,6 @@ function wsGetServer(ws) {
             const response = yield axios_1.default.get(PYTHON_SERVER + "/");
             if (response.status == 200) {
                 const wsResponse = { type: "SERVER", content: response.data };
-                ws.send(JSON.stringify(wsResponse));
-            }
-            else {
-                const wsResponse = { type: "SERVER", content: response.data };
-                console.error(`Non-200 response from Flask ${response.status}`);
                 ws.send(JSON.stringify(wsResponse));
             }
         }
@@ -113,9 +106,6 @@ function wsGetRobot(ws) {
                 return true;
             }
             else {
-                console.error(`Non-200 response from Flask ${response.status}`);
-                const wsResponse = { type: "ROBOT", content: response.data };
-                ws.send(JSON.stringify(wsResponse));
                 return false;
             }
         }
@@ -133,6 +123,7 @@ exports.wsGetRobot = wsGetRobot;
  * if it fails to get the protocol list, it sends the request back to the ws client
  */
 function wsGetProtocols(ws) {
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const response = yield axios_1.default.get(PYTHON_SERVER + "/protocols");
@@ -140,13 +131,14 @@ function wsGetProtocols(ws) {
                 const wsResponse = { type: "PROTOCOLS", content: response.data };
                 ws.send(JSON.stringify(wsResponse));
             }
-            else {
-                console.error(`Non-200 response from Flask ${response.status}`);
-                const wsResponse = { type: "PROTOCOLS", content: response.data };
-                ws.send(JSON.stringify(wsResponse));
-            }
         }
         catch (error) {
+            if (axios_1.default.isAxiosError(error)) {
+                if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) == 404) {
+                    console.log((_b = error.response) === null || _b === void 0 ? void 0 : _b.data);
+                    return;
+                }
+            }
             console.error("wsGetProtocols: Error, Axios error occurred");
         }
     });
@@ -160,6 +152,7 @@ exports.wsGetProtocols = wsGetProtocols;
  * if it fails to post the run request, it sends the request back to the ws client
  */
 function wsPostRun(ws, protocol_id) {
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = { "protocol_id": protocol_id };
@@ -168,13 +161,14 @@ function wsPostRun(ws, protocol_id) {
                 const wsResponse = { type: "RUN", content: response.data };
                 ws.send(JSON.stringify(wsResponse));
             }
-            else {
-                console.error(`Non-201 response from Flask ${response.status}`);
-                const wsResponse = { type: "RUN", content: response.data };
-                ws.send(JSON.stringify(wsResponse));
-            }
         }
         catch (error) {
+            if (axios_1.default.isAxiosError(error)) {
+                if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) == 404) {
+                    console.log((_b = error.response) === null || _b === void 0 ? void 0 : _b.data);
+                    return;
+                }
+            }
             console.error("wsPostRun: Error, Axios error occurred");
         }
     });
@@ -189,6 +183,7 @@ exports.wsPostRun = wsPostRun;
  * if it fails to post the command, it sends the request back to the ws client
  */
 function wsRun(ws, protocol_id, command) {
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = { "protocol_id": protocol_id, "command": command };
@@ -198,18 +193,48 @@ function wsRun(ws, protocol_id, command) {
                 const wsResponse = { type: "COMMAND", content: response.data };
                 ws.send(JSON.stringify(wsResponse));
             }
-            else {
-                console.error(`Non-201 response from Flask ${response.status}`);
-                const wsResponse = { type: "COMMAND", content: response.data };
-                ws.send(JSON.stringify(wsResponse));
-            }
         }
         catch (error) {
+            if (axios_1.default.isAxiosError(error)) {
+                if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) == 404) {
+                    console.log((_b = error.response) === null || _b === void 0 ? void 0 : _b.data);
+                    return;
+                }
+            }
             console.error("wsRun: Error, Axios error occurred");
         }
     });
 }
 exports.wsRun = wsRun;
+/**
+ * wsRunStatus
+ * @param ws - websocket instance
+ * This function gets the robot run status and sends it as a response to the ws client
+ * if it fails to get the run status, it returns the state UNKNOWN
+ */
+function wsRunStatus(ws) {
+    var _a, _b, _c;
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield axios_1.default.get(PYTHON_SERVER + "/runStatus");
+            if (response.status == 200) {
+                const wsResponse = { type: "RUN_STATUS", content: response.data };
+                (0, startUp_1.setRobotState)(response.data);
+                ws.send(JSON.stringify(wsResponse));
+            }
+        }
+        catch (error) { // NOTE: axios will see all non-200 responses as errors
+            if (axios_1.default.isAxiosError(error)) {
+                if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) == 404 || ((_b = error.response) === null || _b === void 0 ? void 0 : _b.status) == 400) {
+                    console.log((_c = error.response) === null || _c === void 0 ? void 0 : _c.data);
+                    return;
+                }
+            }
+            console.error("wsRunStatus: Error, Axios error occurred");
+        }
+    });
+}
+exports.wsRunStatus = wsRunStatus;
 /**
  * sendCommand
  * @param command - command to be sent to the robot
@@ -217,6 +242,7 @@ exports.wsRun = wsRun;
  * if it fails to post the command, it sends the request back to the ws client
  */
 function sendCommand(command) {
+    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const body = { "command": command };
@@ -226,41 +252,16 @@ function sendCommand(command) {
                 const wsResponse = { type: "COMMAND", content: response.data };
                 console.log(wsResponse);
             }
-            else {
-                console.error(`Non-201 response from Flask ${response.status}`);
-                const wsResponse = { type: "COMMAND", content: response.data };
-                console.error(wsResponse);
-            }
         }
-        catch (error) {
+        catch (error) { // NOTE: axios will see all non-200 responses as errors
+            if (axios_1.default.isAxiosError(error)) {
+                if (((_a = error.response) === null || _a === void 0 ? void 0 : _a.status) == 404 || ((_b = error.response) === null || _b === void 0 ? void 0 : _b.status) == 403) {
+                    console.log((_c = error.response) === null || _c === void 0 ? void 0 : _c.data);
+                    return;
+                }
+            }
             console.error("sendCommand: Error, Axios error occurred");
         }
     });
 }
 exports.sendCommand = sendCommand;
-/**
- * wsRunStatus
- * @param ws - websocket instance
- * This function gets the robot run status and sends it as a response to the ws client
- * if it fails to get the run status, it returns the state UNKNOWN
- */
-function wsRunStatus(ws) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const response = yield axios_1.default.get(PYTHON_SERVER + "/runStatus");
-            if (response.status == 200) {
-                const wsResponse = { type: "RUN_STATUS", content: response.data };
-                (0, startUp_1.setRobotState)(response.data);
-                ws.send(JSON.stringify(wsResponse));
-            }
-            else {
-                const wsResponse = { type: "RUN_STATUS", content: runState_1.RobotStates.UNKNOWN };
-                ws.send(JSON.stringify(wsResponse));
-            }
-        }
-        catch (error) {
-            console.error("wsRunStatus: Error, Axios error occurred");
-        }
-    });
-}
-exports.wsRunStatus = wsRunStatus;
