@@ -60,7 +60,8 @@ This will build the server:
 This will start the server:
 `npm start`
 
-The server can be accessed at : `http://127.0.0.1:4000`
+The REST server can be accessed at : `http://127.0.0.1:4000`
+The WebSocket server can be accessed at : `http://127.0.0.1:8084`
 
 # Code
 
