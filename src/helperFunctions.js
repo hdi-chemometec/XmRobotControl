@@ -99,7 +99,7 @@ function startNodeServer() {
         return res.status(200).json({ data: tempIp });
     });
     app.listen(PORT, () => {
-        console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
+        console.log(`⚡️[server]: REST server is running at http://localhost:${PORT}`);
     });
 }
 exports.startNodeServer = startNodeServer;
