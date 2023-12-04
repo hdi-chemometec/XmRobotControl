@@ -89,13 +89,11 @@ function startNodeServer() {
     const PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 4000;
     const app = (0, express_1.default)();
     app.get("/", (req, res) => {
-        console.log("The current Ip Address is: ", getIp());
         return res.send("Hello from Node server!");
     });
     //there should be made a call to the python server whenever the robot is connected
     app.get("/connect", (req, res) => {
         const tempIp = getIp();
-        console.log("The current IP Address is: ", tempIp);
         return res.status(200).json({ data: tempIp });
     });
     app.listen(PORT, () => {

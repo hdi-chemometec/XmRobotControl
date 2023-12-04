@@ -66,14 +66,12 @@ export function startNodeServer(){
     
     
     app.get("/", (req: Request, res: Response) => {
-      console.log("The current Ip Address is: ", getIp());
       return res.send("Hello from Node server!");
     });
     
     //there should be made a call to the python server whenever the robot is connected
     app.get("/connect", (req: Request, res: Response) => {
       const tempIp = getIp();
-      console.log("The current IP Address is: ", tempIp);
       return res.status(200).json({data: tempIp});
     });
     
