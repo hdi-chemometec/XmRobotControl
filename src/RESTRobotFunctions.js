@@ -56,7 +56,7 @@ const getServer = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield axios_1.default.get(PYTHON_SERVER + "/");
         if (response.status == 200) {
-            console.log(`Python server is running ${response.status}`);
+            console.log(`Python server is running`);
             return true;
         }
         else {

@@ -42,7 +42,7 @@ export const getServer = async (): Promise<boolean> => {
   try {
     const response = await axios.get(PYTHON_SERVER + "/");
     if(response.status == 200) {
-      console.log(`Python server is running ${response.status}`);
+      console.log(`Python server is running`);
       return true;
     } else {
     return false;
