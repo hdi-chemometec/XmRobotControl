@@ -100,7 +100,7 @@ function wsGetRobot(ws) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const response = yield axios_1.default.get(PYTHON_SERVER + "/connect");
-            if (response.status == 200) {
+            if (response.data != "False") {
                 const wsResponse = { type: "ROBOT", content: response.data };
                 ws.send(JSON.stringify(wsResponse));
                 return true;

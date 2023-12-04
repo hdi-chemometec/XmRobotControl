@@ -80,7 +80,7 @@ export async function wsGetServer(ws: WebSocket) {
 export async function wsGetRobot(ws: WebSocket): Promise<boolean> {
   try {
     const response = await axios.get(PYTHON_SERVER + "/connect");
-    if(response.status == 200) {
+    if(response.data != "False") {
       const wsResponse = {type: "ROBOT", content: response.data}
       ws.send(JSON.stringify(wsResponse));
       return true;
