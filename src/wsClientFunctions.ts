@@ -71,7 +71,7 @@ export function startClientServer(){
      * @param ws - websocket instance
      * @description function that handles the messages received from the client
      */
-    function handleWsMessages(message: string, ws: WebSocket) {
+    async function handleWsMessages(message: string, ws: WebSocket) {
       try {
         const json = JSON.parse(message);
         console.log("Received message from client: ",json.type);
@@ -104,7 +104,7 @@ export function startClientServer(){
           case "COMMAND": {
             const protocolId = json.protocolId;
             const command = json.command;
-            if(shouldFlowStart()) {
+            if(await shouldFlowStart()) {
               console.log("Flow should start");
               wsRun(ws, protocolId, command);
               console.log("CONTROL BEGINS");
