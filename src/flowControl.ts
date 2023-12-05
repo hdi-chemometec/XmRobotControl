@@ -88,8 +88,9 @@ const handleRobotState = (robotState: FlowRobotStates) => {
     switch(robotState) {
         case FlowRobotStates.START: { 
             if(robot == RobotStates.PAUSED) {//this happens from run 2 and onwards as the robot stops after dropping the pipette
+                setFlowRobotState(FlowRobotStates.FETCHING_SAMPLE);
                 sendCommand("play");
-            } else if(robot == RobotStates.RUNNING) { // this happens in the first run
+            } else if(robot == RobotStates.RUNNING) { // this happens in the first run, not command should be sent
                 setFlowRobotState(FlowRobotStates.FETCHING_SAMPLE);
                 const flowInstrument = getFlowInstrumentState(); //Check if startup for instrument happens correctly
                 handleInstrumentState(flowInstrument);
