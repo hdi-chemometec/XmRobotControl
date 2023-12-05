@@ -61,7 +61,7 @@ function startClientServer() {
         function fetchRunStatus() {
             (0, RESTRobotFunctions_1.wsRunStatus)(ws);
         }
-        setInterval(fetchRunStatus, 2000);
+        setInterval(fetchRunStatus, 3000);
         /**
          * handleWsMessages
          * @param message - message received from the client

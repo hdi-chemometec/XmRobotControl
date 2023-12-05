@@ -63,7 +63,7 @@ export function startClientServer(){
         wsRunStatus(ws);
       }
 
-      setInterval(fetchRunStatus, 2000);
+      setInterval(fetchRunStatus, 3000);
 
     /**
      * handleWsMessages
