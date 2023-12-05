@@ -1,4 +1,4 @@
-import { getIp } from "./helperFunctions";
+import express, { Express, Request, Response } from "express"; // is a web app framework used for building APIs.
 import { getServer } from "./RESTRobotFunctions";
 import { getInstrumentConnection, startInstrumentConnection  } from './wsInstrumentFunctions';
 import { getWsClient, startClientServer } from "./wsClientFunctions";
@@ -35,6 +35,53 @@ export const setInstrumentState = (newStatus: InstrumentStates) => {
 }
 export const getInstrumentState = () => {
   return instrumentState;
+}
+
+
+/**
+ * robotIP
+ * @description variable used to store the robot's IP address
+ * @type {string}
+ * @default ""
+ * getIp: returns the robotIP variable
+ * setIp: sets the robotIP variable
+ */
+let robotIP: string = "";
+function getIp(): string {
+  if(robotIP != "") {
+    return robotIP;
+  } else {
+    return "";
+  }
+}
+
+export function setIp(ip: string) {
+  robotIP = ip;
+}
+
+/**
+ * startNodeServer
+ * @description function that starts the node server on port 4000
+ */
+export function startNodeServer(){
+    const PORT = process.env.PORT ?? 4000;
+    const app: Express = express();
+    
+    
+    app.get("/", (req: Request, res: Response) => {
+      return res.send("Hello from Node server!");
+    });
+    
+    //there should be made a call to the python server whenever the robot is connected
+    app.get("/connect", (req: Request, res: Response) => {
+      const tempIp = getIp();
+      return res.status(200).json({data: tempIp});
+    });
+    
+    app.listen(PORT, () => {
+      console.log(`⚡️[server]: REST server is running at http://localhost:${PORT}`);
+    });
+    
 }
 
 /**

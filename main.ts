@@ -1,4 +1,4 @@
-import { startNodeServer } from "./src/helperFunctions";
+import { startNodeServer } from "./src/startUp";
 import { waitForRobotConnection } from "./src/startUp";
 
 /**

@@ -8,9 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.reconnectToClient = exports.reconnectToInstrument = exports.waitForRobotConnection = exports.getInstrumentState = exports.setInstrumentState = exports.getRobotState = exports.setRobotState = void 0;
-const helperFunctions_1 = require("./helperFunctions");
+exports.reconnectToClient = exports.reconnectToInstrument = exports.waitForRobotConnection = exports.startNodeServer = exports.setIp = exports.getInstrumentState = exports.setInstrumentState = exports.getRobotState = exports.setRobotState = void 0;
+const express_1 = __importDefault(require("express")); // is a web app framework used for building APIs.
 const RESTRobotFunctions_1 = require("./RESTRobotFunctions");
 const wsInstrumentFunctions_1 = require("./wsInstrumentFunctions");
 const wsClientFunctions_1 = require("./wsClientFunctions");
@@ -51,6 +54,48 @@ const getInstrumentState = () => {
 };
 exports.getInstrumentState = getInstrumentState;
 /**
+ * robotIP
+ * @description variable used to store the robot's IP address
+ * @type {string}
+ * @default ""
+ * getIp: returns the robotIP variable
+ * setIp: sets the robotIP variable
+ */
+let robotIP = "";
+function getIp() {
+    if (robotIP != "") {
+        return robotIP;
+    }
+    else {
+        return "";
+    }
+}
+function setIp(ip) {
+    robotIP = ip;
+}
+exports.setIp = setIp;
+/**
+ * startNodeServer
+ * @description function that starts the node server on port 4000
+ */
+function startNodeServer() {
+    var _a;
+    const PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 4000;
+    const app = (0, express_1.default)();
+    app.get("/", (req, res) => {
+        return res.send("Hello from Node server!");
+    });
+    //there should be made a call to the python server whenever the robot is connected
+    app.get("/connect", (req, res) => {
+        const tempIp = getIp();
+        return res.status(200).json({ data: tempIp });
+    });
+    app.listen(PORT, () => {
+        console.log(`⚡️[server]: REST server is running at http://localhost:${PORT}`);
+    });
+}
+exports.startNodeServer = startNodeServer;
+/**
  * waitForRobotConnection
  * @description function that waits for the robot to connect
  * The function is called in the startUp.ts file
@@ -58,7 +103,7 @@ exports.getInstrumentState = getInstrumentState;
  */
 function waitForRobotConnection() {
     setTimeout(function () {
-        const ipConnection = (0, helperFunctions_1.getIp)();
+        const ipConnection = getIp();
         console.log("Robot connection state: ", ipConnection);
         if (ipConnection == "") {
             console.log("Robot not connected");

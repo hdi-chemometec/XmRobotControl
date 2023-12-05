@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const helperFunctions_1 = require("./src/helperFunctions");
 const startUp_1 = require("./src/startUp");
+const startUp_2 = require("./src/startUp");
 /**
  * Main function
  * Starts the node server and starts the startup process
@@ -18,8 +18,8 @@ const startUp_1 = require("./src/startUp");
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("Hello world");
-        (0, helperFunctions_1.startNodeServer)();
-        (0, startUp_1.waitForRobotConnection)();
+        (0, startUp_1.startNodeServer)();
+        (0, startUp_2.waitForRobotConnection)();
     });
 }
 if (require.main === module) {

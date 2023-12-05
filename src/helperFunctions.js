@@ -22,13 +22,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.startNodeServer = exports.getIp = void 0;
+const startUp_1 = require("./startUp");
 const RESTRobotFunctions_1 = require("./RESTRobotFunctions");
-const express_1 = __importDefault(require("express")); // is a web app framework used for building APIs.
 const discovery_client_1 = __importStar(require("@opentrons/discovery-client"));
 /**
  * robot
@@ -44,7 +40,7 @@ robot.on(discovery_client_1.SERVICE_EVENT, (service) => {
         if (service.serverOk) {
             console.log("Ip address found: ", service.ip);
             if (service.ip != null) {
-                setIp(service.ip);
+                (0, startUp_1.setIp)(service.ip);
                 (0, RESTRobotFunctions_1.informPythonServerIpUpdate)();
             }
         }
@@ -59,45 +55,3 @@ robot.on(discovery_client_1.SERVICE_REMOVED_EVENT, (service) => {
         (0, RESTRobotFunctions_1.informPythonServerIpUpdate)();
     });
 });
-/**
- * robotIP
- * @description variable used to store the robot's IP address
- * @type {string}
- * @default ""
- * getIp: returns the robotIP variable
- * setIp: sets the robotIP variable
- */
-let robotIP = "";
-function getIp() {
-    if (robotIP != "") {
-        return robotIP;
-    }
-    else {
-        return "";
-    }
-}
-exports.getIp = getIp;
-function setIp(ip) {
-    robotIP = ip;
-}
-/**
- * startNodeServer
- * @description function that starts the node server on port 4000
- */
-function startNodeServer() {
-    var _a;
-    const PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 4000;
-    const app = (0, express_1.default)();
-    app.get("/", (req, res) => {
-        return res.send("Hello from Node server!");
-    });
-    //there should be made a call to the python server whenever the robot is connected
-    app.get("/connect", (req, res) => {
-        const tempIp = getIp();
-        return res.status(200).json({ data: tempIp });
-    });
-    app.listen(PORT, () => {
-        console.log(`⚡️[server]: REST server is running at http://localhost:${PORT}`);
-    });
-}
-exports.startNodeServer = startNodeServer;
