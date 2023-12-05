@@ -111,7 +111,7 @@ function waitForRobotConnection() {
         }
         else {
             console.log("Robot is connected");
-            waitForServerConnection();
+            waitForPythonServerConnection();
         }
     }, 10000);
 }
@@ -121,14 +121,14 @@ exports.waitForRobotConnection = waitForRobotConnection;
  * @description function that waits for the python server to connect
  * The function is called recursively every 10 seconds until the python server is connected
  */
-function waitForServerConnection() {
+function waitForPythonServerConnection() {
     return __awaiter(this, void 0, void 0, function* () {
         const serverConnection = yield (0, RESTRobotFunctions_1.getServer)();
         setTimeout(function () {
             console.log("Python server connection state: ", serverConnection);
             if (!serverConnection) {
                 console.log("Python server not connected");
-                waitForServerConnection();
+                waitForPythonServerConnection();
             }
             else {
                 console.log("Python server is connected");

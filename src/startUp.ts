@@ -81,7 +81,6 @@ export function startNodeServer(){
     app.listen(PORT, () => {
       console.log(`⚡️[server]: REST server is running at http://localhost:${PORT}`);
     });
-    
 }
 
 /**
@@ -99,7 +98,7 @@ export function waitForRobotConnection() {
       waitForRobotConnection();
     } else {
       console.log("Robot is connected");
-      waitForServerConnection();
+      waitForPythonServerConnection();
     }
   }, 10000);
 }
@@ -109,13 +108,13 @@ export function waitForRobotConnection() {
  * @description function that waits for the python server to connect
  * The function is called recursively every 10 seconds until the python server is connected
  */
-async function waitForServerConnection() {
+async function waitForPythonServerConnection() {
   const serverConnection = await getServer();
   setTimeout(function() {
     console.log("Python server connection state: ", serverConnection);
     if(!serverConnection) {
       console.log("Python server not connected");
-      waitForServerConnection();
+      waitForPythonServerConnection();
     } else {
       console.log("Python server is connected");
       startInstrumentConnection();
