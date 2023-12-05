@@ -109,8 +109,8 @@ const handleRobotState = (robotState) => {
         case flowStates_1.FlowRobotStates.DROP_SAMPLE: {
             const instrument = (0, startUp_1.getInstrumentState)();
             if (instrument == instrumentStates_1.InstrumentStates.IDLE && flowInstrumentState == flowStates_1.FlowInstrumentStates.READY) { //when instrument is ready, drop sample
-                (0, RESTRobotFunctions_1.sendCommand)("play");
                 setFlowInstrumentState(flowStates_1.FlowInstrumentStates.ANALYZE_SAMPLE);
+                (0, RESTRobotFunctions_1.sendCommand)("play");
             }
             else if (robot == runState_1.RobotStates.PAUSED || robot == runState_1.RobotStates.FINISHING) { //we must wait for the robot to be done dropping the sample before analyzing
                 setFlowRobotState(flowStates_1.FlowRobotStates.WAITING_FOR_INSTRUMENT);
