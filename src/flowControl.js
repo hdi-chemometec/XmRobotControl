@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startControlFlow = exports.shouldFlowStart = void 0;
 const flowStates_1 = require("../Types/flowStates");
@@ -42,16 +51,19 @@ const setFlowRobotState = (newState) => {
  * @returns {boolean} true if the flow control should start
  * The flow should only start if the is idle and the robot is either idle or unknown state
  */
-const shouldFlowStart = () => {
-    const instrument = (0, startUp_1.getInstrumentState)();
-    const robot = (0, startUp_1.getRobotState)();
-    if ((instrument == instrumentStates_1.InstrumentStates.UNKNOWN || instrument == instrumentStates_1.InstrumentStates.IDLE) && robot == runState_1.RobotStates.IDLE) {
-        return true;
-    }
-    else {
-        return false;
-    }
-};
+function shouldFlowStart() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const instrument = (0, startUp_1.getInstrumentState)();
+        const isRobotConnected = yield (0, RESTRobotFunctions_1.getRobot)();
+        const robot = (0, startUp_1.getRobotState)();
+        if ((instrument == instrumentStates_1.InstrumentStates.UNKNOWN || instrument == instrumentStates_1.InstrumentStates.IDLE) && robot == runState_1.RobotStates.IDLE && isRobotConnected == true) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    });
+}
 exports.shouldFlowStart = shouldFlowStart;
 /**
  * startControlFlow

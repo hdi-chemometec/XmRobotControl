@@ -3,7 +3,7 @@ import { InstrumentStates } from "../Types/instrumentStates";
 import { RobotStates } from "../Types/runState";
 import { getInstrumentState, getRobotState } from "./startUp";
 import { fromServerSendMessageToInstrument } from "./wsInstrumentFunctions";
-import { sendCommand } from "./RESTRobotFunctions";
+import { sendCommand, getRobot } from "./RESTRobotFunctions";
 
 /**
  * flowInstrumentState
@@ -42,10 +42,11 @@ const setFlowRobotState = (newState: FlowRobotStates) => {
  * @returns {boolean} true if the flow control should start
  * The flow should only start if the is idle and the robot is either idle or unknown state
  */
-export const shouldFlowStart = (): boolean => {
+export async function shouldFlowStart(): Promise<boolean> {
     const instrument = getInstrumentState();
+    const isRobotConnected = await getRobot();
     const robot = getRobotState();
-    if((instrument == InstrumentStates.UNKNOWN || instrument == InstrumentStates.IDLE) && robot == RobotStates.IDLE) {
+    if((instrument == InstrumentStates.UNKNOWN || instrument == InstrumentStates.IDLE) && robot == RobotStates.IDLE && isRobotConnected == true) {
         return true;
     } else {
         return false;
