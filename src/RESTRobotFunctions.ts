@@ -104,6 +104,28 @@ export async function wsGetRobot(ws: WebSocket): Promise<boolean> {
 }
 
 /**
+ * getRobot
+ * This function gets the robot connection state and sends it's state as a response to the ws client
+ * if it fails to get the connection state, it sends the request back to the ws client
+ */
+export async function getRobot(): Promise<boolean> {
+  try {
+    const response = await axios.get(PYTHON_SERVER + "/connect");
+    if(response.data.type == "ERROR") {
+      return false;
+    }
+    if(response.data != "False") {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error("getRobot: Error, Axios error occurred");
+    return false;
+  }
+}
+
+/**
  * 
  * @param ws - websocket instance
  * This function gets the robot protocol list and sends it as a response to the ws client

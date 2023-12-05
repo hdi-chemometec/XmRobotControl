@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendCommand = exports.wsRunStatus = exports.wsRun = exports.wsPostRun = exports.wsGetProtocols = exports.wsGetRobot = exports.wsGetServer = exports.getServer = exports.informPythonServerIpUpdate = void 0;
+exports.sendCommand = exports.wsRunStatus = exports.wsRun = exports.wsPostRun = exports.wsGetProtocols = exports.getRobot = exports.wsGetRobot = exports.wsGetServer = exports.getServer = exports.informPythonServerIpUpdate = void 0;
 const axios_1 = __importDefault(require("axios")); // library used for making HTTP requests to servers. E.g. the flask server
 const startUp_1 = require("./startUp");
 /**
@@ -126,6 +126,32 @@ function wsGetRobot(ws) {
     });
 }
 exports.wsGetRobot = wsGetRobot;
+/**
+ * getRobot
+ * This function gets the robot connection state and sends it's state as a response to the ws client
+ * if it fails to get the connection state, it sends the request back to the ws client
+ */
+function getRobot() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield axios_1.default.get(PYTHON_SERVER + "/connect");
+            if (response.data.type == "ERROR") {
+                return false;
+            }
+            if (response.data != "False") {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        catch (error) {
+            console.error("getRobot: Error, Axios error occurred");
+            return false;
+        }
+    });
+}
+exports.getRobot = getRobot;
 /**
  *
  * @param ws - websocket instance
