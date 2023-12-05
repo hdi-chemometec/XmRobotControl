@@ -106,7 +106,7 @@ function wsGetRobot(ws) {
         try {
             const response = yield axios_1.default.get(PYTHON_SERVER + "/connect");
             if (response.data.type == "ERROR") {
-                const wsResponse = { type: "SERVER", content: response.data.message };
+                const wsResponse = { type: "ROBOT", content: response.data.message };
                 ws.send(JSON.stringify(wsResponse));
                 return false;
             }
@@ -139,7 +139,7 @@ function wsGetProtocols(ws) {
             const response = yield axios_1.default.get(PYTHON_SERVER + "/protocols");
             if (response.status == 200) {
                 if (response.data.type == "ERROR") {
-                    const wsResponse = { type: "SERVER", content: response.data.message };
+                    const wsResponse = { type: "PROTOCOLS", content: response.data.message };
                     ws.send(JSON.stringify(wsResponse));
                     return false;
                 }
@@ -234,7 +234,7 @@ function wsRunStatus(ws) {
             const response = yield axios_1.default.get(PYTHON_SERVER + "/runStatus");
             if (response.status == 200) {
                 if (response.data.type == "ERROR") {
-                    const wsResponse = { type: "SERVER", content: response.data.message };
+                    const wsResponse = { type: "RUN_STATUS", content: response.data.message };
                     ws.send(JSON.stringify(wsResponse));
                     return false;
                 }
@@ -251,6 +251,8 @@ function wsRunStatus(ws) {
                 }
             }
             console.error("wsRunStatus: Error, Axios error occurred");
+            const wsResponse = { type: "RUN_STATUS", content: '' };
+            ws.send(JSON.stringify(wsResponse));
         }
     });
 }

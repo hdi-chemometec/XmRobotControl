@@ -86,7 +86,7 @@ export async function wsGetRobot(ws: WebSocket): Promise<boolean> {
   try {
     const response = await axios.get(PYTHON_SERVER + "/connect");
     if(response.data.type == "ERROR") {
-      const wsResponse = {type: "SERVER", content: response.data.message}
+      const wsResponse = {type: "ROBOT", content: response.data.message}
       ws.send(JSON.stringify(wsResponse));
       return false;
     }
@@ -114,7 +114,7 @@ export async function wsGetProtocols(ws: WebSocket) {
     const response = await axios.get(PYTHON_SERVER + "/protocols");
     if(response.status == 200) {
       if(response.data.type == "ERROR") {
-        const wsResponse = {type: "SERVER", content: response.data.message}
+        const wsResponse = {type: "PROTOCOLS", content: response.data.message}
         ws.send(JSON.stringify(wsResponse));
         return false;
       }
@@ -199,7 +199,7 @@ export async function wsRunStatus(ws: WebSocket) {
     const response = await axios.get(PYTHON_SERVER + "/runStatus");
     if(response.status == 200) {
       if(response.data.type == "ERROR") {
-        const wsResponse = {type: "SERVER", content: response.data.message}
+        const wsResponse = {type: "RUN_STATUS", content: response.data.message}
         ws.send(JSON.stringify(wsResponse));
         return false;
       }
@@ -211,10 +211,13 @@ export async function wsRunStatus(ws: WebSocket) {
     if(axios.isAxiosError(error)) {
       if(error.response?.status == 404 || error.response?.status == 400) {
         console.log(error.response?.data);
+        
         return;
       }
     }
     console.error("wsRunStatus: Error, Axios error occurred");
+    const wsResponse = {type: "RUN_STATUS", content: ''}
+    ws.send(JSON.stringify(wsResponse));
   }
 }
 
