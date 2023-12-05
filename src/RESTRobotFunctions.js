@@ -80,6 +80,11 @@ function wsGetServer(ws) {
         try {
             const response = yield axios_1.default.get(PYTHON_SERVER + "/");
             if (response.status == 200) {
+                if (response.data.type == "ERROR") {
+                    const wsResponse = { type: "SERVER", content: response.data.message };
+                    ws.send(JSON.stringify(wsResponse));
+                    return;
+                }
                 const wsResponse = { type: "SERVER", content: response.data };
                 ws.send(JSON.stringify(wsResponse));
             }
@@ -100,6 +105,11 @@ function wsGetRobot(ws) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const response = yield axios_1.default.get(PYTHON_SERVER + "/connect");
+            if (response.data.type == "ERROR") {
+                const wsResponse = { type: "SERVER", content: response.data.message };
+                ws.send(JSON.stringify(wsResponse));
+                return false;
+            }
             if (response.data != "False") {
                 const wsResponse = { type: "ROBOT", content: response.data };
                 ws.send(JSON.stringify(wsResponse));
@@ -128,6 +138,11 @@ function wsGetProtocols(ws) {
         try {
             const response = yield axios_1.default.get(PYTHON_SERVER + "/protocols");
             if (response.status == 200) {
+                if (response.data.type == "ERROR") {
+                    const wsResponse = { type: "SERVER", content: response.data.message };
+                    ws.send(JSON.stringify(wsResponse));
+                    return false;
+                }
                 const wsResponse = { type: "PROTOCOLS", content: response.data };
                 ws.send(JSON.stringify(wsResponse));
             }
@@ -218,6 +233,11 @@ function wsRunStatus(ws) {
         try {
             const response = yield axios_1.default.get(PYTHON_SERVER + "/runStatus");
             if (response.status == 200) {
+                if (response.data.type == "ERROR") {
+                    const wsResponse = { type: "SERVER", content: response.data.message };
+                    ws.send(JSON.stringify(wsResponse));
+                    return false;
+                }
                 const wsResponse = { type: "RUN_STATUS", content: response.data };
                 (0, startUp_1.setRobotState)(response.data);
                 ws.send(JSON.stringify(wsResponse));

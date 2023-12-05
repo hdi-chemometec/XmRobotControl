@@ -63,6 +63,11 @@ export async function wsGetServer(ws: WebSocket) {
   try {
     const response = await axios.get(PYTHON_SERVER + "/");
     if(response.status == 200) {
+      if(response.data.type == "ERROR") {
+        const wsResponse = {type: "SERVER", content: response.data.message}
+        ws.send(JSON.stringify(wsResponse));
+        return;
+      }
       const wsResponse = {type: "SERVER", content: response.data}
       ws.send(JSON.stringify(wsResponse));
     }
@@ -80,6 +85,11 @@ export async function wsGetServer(ws: WebSocket) {
 export async function wsGetRobot(ws: WebSocket): Promise<boolean> {
   try {
     const response = await axios.get(PYTHON_SERVER + "/connect");
+    if(response.data.type == "ERROR") {
+      const wsResponse = {type: "SERVER", content: response.data.message}
+      ws.send(JSON.stringify(wsResponse));
+      return false;
+    }
     if(response.data != "False") {
       const wsResponse = {type: "ROBOT", content: response.data}
       ws.send(JSON.stringify(wsResponse));
@@ -103,6 +113,11 @@ export async function wsGetProtocols(ws: WebSocket) {
   try {
     const response = await axios.get(PYTHON_SERVER + "/protocols");
     if(response.status == 200) {
+      if(response.data.type == "ERROR") {
+        const wsResponse = {type: "SERVER", content: response.data.message}
+        ws.send(JSON.stringify(wsResponse));
+        return false;
+      }
       const wsResponse = {type: "PROTOCOLS", content: response.data}
       ws.send(JSON.stringify(wsResponse));
     }
@@ -183,6 +198,11 @@ export async function wsRunStatus(ws: WebSocket) {
   try {
     const response = await axios.get(PYTHON_SERVER + "/runStatus");
     if(response.status == 200) {
+      if(response.data.type == "ERROR") {
+        const wsResponse = {type: "SERVER", content: response.data.message}
+        ws.send(JSON.stringify(wsResponse));
+        return false;
+      }
       const wsResponse = {type: "RUN_STATUS", content: response.data}
       setRobotState(response.data);
       ws.send(JSON.stringify(wsResponse));
