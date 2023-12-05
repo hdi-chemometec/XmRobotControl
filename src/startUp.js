@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12,13 +35,44 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.reconnectToClient = exports.reconnectToInstrument = exports.waitForRobotConnection = exports.startNodeServer = exports.setIp = exports.getInstrumentState = exports.setInstrumentState = exports.getRobotState = exports.setRobotState = void 0;
+exports.reconnectToClient = exports.reconnectToInstrument = exports.waitForRobotConnection = exports.startNodeServer = exports.getInstrumentState = exports.setInstrumentState = exports.getRobotState = exports.setRobotState = void 0;
 const express_1 = __importDefault(require("express")); // is a web app framework used for building APIs.
+const discovery_client_1 = __importStar(require("@opentrons/discovery-client"));
 const RESTRobotFunctions_1 = require("./RESTRobotFunctions");
 const wsInstrumentFunctions_1 = require("./wsInstrumentFunctions");
 const wsClientFunctions_1 = require("./wsClientFunctions");
 const runState_1 = require("../Types/runState");
 const instrumentStates_1 = require("../Types/instrumentStates");
+const RESTRobotFunctions_2 = require("./RESTRobotFunctions");
+/**
+ * robot
+ * @description a new instance of the DiscoveryClient class
+ * @type {DiscoveryClient}
+ * It is used to handle events related to the robot connection to fetch the IP address of the robot
+ */
+const robot = new discovery_client_1.default();
+// functions used for getting the robot IP address:
+robot.start();
+robot.on(discovery_client_1.SERVICE_EVENT, (service) => {
+    service.forEach((service) => {
+        if (service.serverOk) {
+            console.log("Ip address found: ", service.ip);
+            if (service.ip != null) {
+                setIp(service.ip);
+                (0, RESTRobotFunctions_2.informPythonServerIpUpdate)();
+            }
+        }
+        else {
+            console.log("No robot is connected");
+        }
+    });
+});
+robot.on(discovery_client_1.SERVICE_REMOVED_EVENT, (service) => {
+    service.forEach((service) => {
+        console.log("Ip address removed: ", service.ip);
+        (0, RESTRobotFunctions_2.informPythonServerIpUpdate)();
+    });
+});
 /**
  * robotState
  * @description variable describing the current state of the robot
@@ -73,7 +127,6 @@ function getIp() {
 function setIp(ip) {
     robotIP = ip;
 }
-exports.setIp = setIp;
 /**
  * startNodeServer
  * @description function that starts the node server on port 4000

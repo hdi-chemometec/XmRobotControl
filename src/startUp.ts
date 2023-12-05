@@ -1,9 +1,45 @@
 import express, { Express, Request, Response } from "express"; // is a web app framework used for building APIs.
+import DiscoveryClient, { SERVICE_EVENT, SERVICE_REMOVED_EVENT } from '@opentrons/discovery-client';
+import Service from "../Types/Service";
 import { getServer } from "./RESTRobotFunctions";
 import { getInstrumentConnection, startInstrumentConnection  } from './wsInstrumentFunctions';
 import { getWsClient, startClientServer } from "./wsClientFunctions";
 import { RobotStates } from "../Types/runState";
 import { InstrumentStates } from "../Types/instrumentStates";
+import { informPythonServerIpUpdate } from "./RESTRobotFunctions";
+
+/**
+ * robot
+ * @description a new instance of the DiscoveryClient class
+ * @type {DiscoveryClient}
+ * It is used to handle events related to the robot connection to fetch the IP address of the robot
+ */
+const robot = new DiscoveryClient();
+
+// functions used for getting the robot IP address:
+robot.start();
+
+robot.on(SERVICE_EVENT, (service: Array<Service>) => {
+    service.forEach((service) => {
+      if(service.serverOk){
+        console.log("Ip address found: ", service.ip);
+        if(service.ip != null) {
+          setIp(service.ip);
+          informPythonServerIpUpdate();
+        }
+      }
+      else {
+        console.log("No robot is connected");
+      }
+    });
+});
+
+robot.on(SERVICE_REMOVED_EVENT, (service: Array<Service>) => {
+    service.forEach((service) => {
+        console.log("Ip address removed: ", service.ip);
+        informPythonServerIpUpdate();
+    });
+});
 
 /**
  * robotState
@@ -37,7 +73,6 @@ export const getInstrumentState = () => {
   return instrumentState;
 }
 
-
 /**
  * robotIP
  * @description variable used to store the robot's IP address
@@ -55,7 +90,7 @@ function getIp(): string {
   }
 }
 
-export function setIp(ip: string) {
+function setIp(ip: string) {
   robotIP = ip;
 }
 
