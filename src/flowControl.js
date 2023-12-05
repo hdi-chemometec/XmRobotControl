@@ -96,7 +96,7 @@ exports.startControlFlow = startControlFlow;
  */
 const handleRobotState = (robotState) => {
     const robot = (0, startUp_1.getRobotState)();
-    if (robot == runState_1.RobotStates.FINISHING && flowRobotState != flowStates_1.FlowRobotStates.FINISHING) { //check if robot is finishing and only set if it is not already set
+    if (robot == runState_1.RobotStates.FINISHING && flowRobotState != flowStates_1.FlowRobotStates.FINISHING) { //check if robot is finishing and set flow state. Only if it is not already set
         setFlowRobotState(flowStates_1.FlowRobotStates.FINISHING);
     }
     switch (robotState) {
