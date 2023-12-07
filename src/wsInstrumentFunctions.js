@@ -86,7 +86,7 @@ clientInstance.on("connect", function (connection) {
             connection.send(message);
         }
         catch (error) {
-            console.log("Instrument is not connected");
+            console.log("sendMessageToInstrument: Error occurred while sending message to instrument");
         }
     };
 });
