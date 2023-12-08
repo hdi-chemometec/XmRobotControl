@@ -107,8 +107,6 @@ const handleRobotState = (robotState) => {
             }
             else if (robot == runState_1.RobotStates.RUNNING) { // this happens in the first run, not command should be sent
                 setFlowRobotState(flowStates_1.FlowRobotStates.FETCHING_SAMPLE);
-                const flowInstrument = getFlowInstrumentState(); //Check if startup for instrument happens correctly
-                handleInstrumentState(flowInstrument);
             }
             break;
         }
@@ -169,7 +167,7 @@ const handleInstrumentState = (instrumentState) => {
                 setFlowInstrumentState(flowStates_1.FlowInstrumentStates.INITIALIZE_CALLED);
             }
             else if (instrument == instrumentStates_1.InstrumentStates.IDLE) { //if instrument is initialized, set instrument state to ready
-                setFlowInstrumentState(flowStates_1.FlowInstrumentStates.READY);
+                setFlowInstrumentState(flowStates_1.FlowInstrumentStates.INITIALIZE_CALLED);
             }
             break;
         }

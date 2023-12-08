@@ -87,14 +87,12 @@ const handleRobotState = (robotState: FlowRobotStates) => {
         setFlowRobotState(FlowRobotStates.FINISHING);
     }
     switch(robotState) {
-        case FlowRobotStates.START: { 
+        case FlowRobotStates.START: {
             if(robot == RobotStates.PAUSED) {//this happens from run 2 and onwards as the robot stops after dropping the pipette
                 setFlowRobotState(FlowRobotStates.FETCHING_SAMPLE);
                 sendCommand("play");
             } else if(robot == RobotStates.RUNNING) { // this happens in the first run, not command should be sent
                 setFlowRobotState(FlowRobotStates.FETCHING_SAMPLE);
-                const flowInstrument = getFlowInstrumentState(); //Check if startup for instrument happens correctly
-                handleInstrumentState(flowInstrument);
             }
             break;
         }
@@ -154,7 +152,7 @@ const handleInstrumentState = (instrumentState: FlowInstrumentStates) => {
                 fromServerSendMessageToInstrument("INITIALIZE");
                 setFlowInstrumentState(FlowInstrumentStates.INITIALIZE_CALLED);
             } else if(instrument == InstrumentStates.IDLE) { //if instrument is initialized, set instrument state to ready
-                setFlowInstrumentState(FlowInstrumentStates.READY);
+                setFlowInstrumentState(FlowInstrumentStates.INITIALIZE_CALLED);
             }
             break;
         }
