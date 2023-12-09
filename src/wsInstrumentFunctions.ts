@@ -125,11 +125,6 @@ function handleReceivedMessage(message: Message) {
         console.log("RUN: ", runBool);
         break;
       }
-      case "DATA_READY": {
-        const finishedBool: string = json.content;
-        console.log("DATA_READY", finishedBool);
-        break;
-      }
       default:{
         console.log("handleReceivedMessage: WS instrument Default");
         break;
