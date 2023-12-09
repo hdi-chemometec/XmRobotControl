@@ -107,21 +107,23 @@ function handleReceivedMessage(message: Message) {
   if(message.type === 'utf8') {
     const json = JSON.parse(message.utf8Data);
     console.log("Received message from instrument: ",json);
-    sendMessageToClient(json); //inform client of changes
     switch (json.type) {
       case "STATE": {
         const instrumentState: InstrumentStates = json.content;
         setInstrumentState(instrumentState);
+        sendMessageToClient(json); //inform client of changes
         console.log("STATE: ", instrumentState);
         break;
       }
       case "INITIALIZE": {
         const initializeBool: string = json.content;
+        sendMessageToClient(json); //inform client of changes
         console.log("INITIALIZE: ", initializeBool);
         break;
       }
       case "RUN": {
         const runBool: string = json.content;
+        sendMessageToClient(json); //inform client of changes
         console.log("RUN: ", runBool);
         break;
       }
