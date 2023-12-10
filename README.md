@@ -34,6 +34,7 @@ Make sure you have the following installed:
 - Node.js
 - git
 - npm
+- Visual Studio Code
 - Chrome
 - Powershell (You can use the one embedded in VS Code)
 
