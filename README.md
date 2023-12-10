@@ -72,6 +72,7 @@ The primary tech stack is as follows:
 
 - Typescript - language
 - Node.js - server
+- npm - package manager
 - ESLint - linting
 
 ## Project structure
